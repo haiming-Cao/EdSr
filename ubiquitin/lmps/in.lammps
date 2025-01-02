@@ -1,0 +1,88 @@
+# 3d simulation
+
+units		real
+atom_style	full
+
+variable	er equal 15.0 # gromacs epsilon_r 15
+
+
+neighbor	10.0 bin
+
+timestep        10.0  # 
+
+bond_style	harmonic
+
+angle_style	cosine/squared
+
+dihedral_style  fourier
+
+improper_style  harmonic
+
+neigh_modify    delay 0 every 1 check yes
+
+pair_style      lj/cut/coul/cut 22.0 
+
+pair_modify     shift yes
+
+read_data	data/protein.data
+dielectric	${er}
+
+group protein id 1:163
+
+velocity all create 300 114514 dist gaussian
+velocity all scale 300
+
+special_bonds   lj/coul 0.0 1.0 1.0
+
+compute 1 all bond/local dist
+
+fix nvtfix all nvt temp 300.0 300.0 200.0
+
+# dump emdump1 all atom 1 em.trajs
+dump nvt_dtrajs protein atom 100 trajs/nvt_protein.trajs
+dump nvt_all_dtrajs all atom 100 trajs/nvt_all.trajs
+
+dump nvt_dyaml all yaml 100 yaml/nvt.yaml id type x y z
+dump_modify nvt_dyaml sort id units yes thermo yes
+
+dump nvt_dist all local 10000 trajs/nvt_dist.dump c_1[0]
+
+thermo_style	custom step time spcpu temp press pe ke enthalpy evdwl ecoul epair ebond eangle edihed elong etail emol ecouple econserve etotal lx ly lz
+
+thermo 10000
+
+run 300000
+
+unfix nvtfix
+undump nvt_dyaml
+undump nvt_dtrajs
+undump nvt_dist
+undump nvt_all_dtrajs
+
+write_data data/nvt_protein.data pair ij
+
+timestep 10.0
+
+reset_timestep 0
+
+# fix tcst all temp/rescale 1 300.0 300.0 1.0 0.5 # tcoupl: v-rescale, ref_t: 300, 
+# # Pcoupltype: isotropic, Pcoupl: parrinello-rahman -> berendsen
+# fix pcst all press/berendsen iso 0.98 0.98 1200.0
+# fix integrate all nve
+
+fix nptfix all npt iso 0.987 0.987 1200.0 temp 300.0 300.0 200.0
+
+dump npt_dtrajs protein atom 100 trajs/npt_protein.trajs
+dump npt_all_dtrajs all atom 100 trajs/npt_all.trajs
+
+dump npt_dyaml all yaml 100 yaml/npt.yaml id type x y z
+dump_modify npt_dyaml sort id units yes thermo yes 
+
+dump npt_dist all local 10000 trajs/npt_dist.dump c_1[0]
+
+thermo		10000
+# minimize        1.0e-6 1.0e-8 10000 100000
+# write_data      data.lammps nocoeff
+run 300000
+
+write_data data/npt_protein.data pair ij
