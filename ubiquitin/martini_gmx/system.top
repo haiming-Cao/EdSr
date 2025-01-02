@@ -1,0 +1,13 @@
+#include "martini_v2.2.itp"
+
+#include "Protein_A.itp"
+
+[ system ]
+; name
+Martini system from 1UBQ.pdb in water
+
+[ molecules ]
+; name        number
+Protein_A 	 1
+W                2224
+WF           247

@@ -1,0 +1,45 @@
+# 3d simulation
+
+units		real
+atom_style	full
+
+variable	er equal 15.0 # gromacs epsilon_r 15
+
+
+neighbor	10.0 bin
+
+timestep        10.0  
+
+bond_style	harmonic
+
+angle_style	cosine/squared
+
+dihedral_style  fourier
+
+improper_style  harmonic
+
+neigh_modify    delay 0 every 1 check yes
+
+pair_style      lj/cut/coul/cut 22.0
+
+pair_modify     shift yes
+
+dielectric	${er}
+read_data	data/npt_protein.data
+
+group protein id 1:163
+
+special_bonds   lj/coul 0.0 1.0 1.0
+
+fix 1 all nve
+
+dump dydump protein atom 1000 trajs/nve_protein.trajs
+dump dy_all_dump all atom 1000 trajs/nve_all.trajs
+
+thermo_style	custom step time spcpu temp press pe ke enthalpy evdwl ecoul epair ebond eangle edihed elong etail emol ecouple econserve etotal lx ly lz
+
+thermo 1000
+
+run 300000
+
+write_data data/nve_protein.data pair ij
