@@ -1,26 +1,3 @@
----
-title: "EdSr: A Novel End-to-End Approach for State-Space Sampling in Molecular Dynamics Simulation"
-header-includes:
-  - \usepackage{ctex}
-  - \usepackage{algorithm}
-  - \usepackage{algorithmic}
-  - \usepackage[ruled,vlined]{algorithm2e}
-output:
-- pdf_document:
-    # path: /Exports/test.pdf
-    includes:
-      keep_tex: yes
-    toc: true
-    toc_depth: 3
-    number_sections: true
-    latex_engine: xelatex 
-fontsize: 12pt # [10pt, 11pt, 12pt]
-geometry: 
-- margin = 1cm
-- top = 1cm
-- bottom = 1.2cm
----
-
 <div align="center">
     <h1>EdSr: A Novel End-to-End Approach for State-Space Sampling in Molecular Dynamics Simulation</h1>
      <p align="center"> 
