@@ -10,7 +10,7 @@
     <sup>*</sup> E-mail: libin76@mail.sysu.edu.cn
     </p>
     </p>  
-    <a href="https://github.com/haiming-Cao/EdSr/blob/main/LISCENCE">
+    <a href="https://github.com/haiming-Cao/EdSr/blob/main/LICENSE">
     <img alt="GitHub License" src="https://img.shields.io/github/license/haiming-Cao/EdSr?style=flat&color=blue">
     </a>
     <a href="https://arxiv.org/abs/2412.20978">
@@ -98,7 +98,9 @@ EDSR
 
 ## 🛠️ Requirements
 
-!!! attention PYTHON version == 3.11.5
+<div class="admonition attention">
+<p class="admonition-title">PYTHON version &gt;= 3.11</p>
+</div>
 
 Third-Party Package|Version|
 |:-:|:-:|
@@ -115,26 +117,23 @@ Third-Party Package|Version|
 The part of displacement of EdSr can be rewritten as the following form:
 
 $$
-\begin{equation}
 X_{n-1} = X_N + \frac{1}{2n-1} \Big(X'_N\Delta t - \frac{1}{2n}\frac{\nabla_X U(X_n)}{M}(\Delta t)^{2}\Big), \quad n\ \rm{for}\ N\ to\ 1 
-\end{equation}
 $$
+
 where \(X_0\), \(X_N\), \(X_N'\) denote \(X(b)\), \(X(a)\), \(X'(a)\) respectively. According to the definition of derivative, the part of velocity of EdSr can be expressed as:
 $$
-\begin{equation}
-\left\{
-\begin{aligned}
-X_{n-1} ={} & X_N + \frac{1}{2n-2} \Big(X'_N\Delta t - \frac{1}{2n-1}\frac{\nabla_X U(X_n)}{M}(\Delta t)^{2}\Big), & \quad n\ \rm{for}\ N\ to\ 2 \\ 
-X'_0 ={} & X'_N - \frac{\nabla_X U(X_1)}{M}\Delta t,   & \quad  n = 1
-\end{aligned}
-\right.
-\end{equation}
+\begin{cases}
+X_{n-1} & =  X_N + \frac{1}{2n-2} \Big(X'_N\Delta t - \frac{1}{2n-1}\frac{\nabla_X U(X_n)}{M}(\Delta t)^{2}\Big), & \quad n\ \rm{for}\ N\ to\ 2 \\ 
+X'_0 & =  X'_N - \frac{\nabla_X U(X_1)}{M}\Delta t,   & \quad  n = 1
+\end{cases}
 $$
 where \(X'_0\) denotes \(X'(b)\). 
 
 ## 📈 Results
 
-!!! comment In this section, we only show figures for each experiment. if you are interested in our work, you can get to know from [our paper](https://arxiv.org/abs/2412.20978) and [supplementary](https://arxiv.org/abs/2412.20978)
+<div class="admonition note">
+<p class="admonition-title">In this section, we only show figures for each experiment. if you are interested in our work, you can get to know from <a href="https://arxiv.org/abs/2412.20978">our paper</a> and <a href="https://arxiv.org/abs/2412.20978">supplementary</a></p>
+</div>
 
 ### Equation
 
@@ -268,7 +267,9 @@ bash EdSr.sh
 ```
 *For data visualization, you can run .ipynb file directly after getting data.*
 
-!!! question if you want to learn more about this work, please send e-mail to libin76@mail.sysu.edu.cn with your question. we are willing to answer questions about technical details or paper. 
+<div class="admonition question">
+<p class="admonition-title">if you want to learn more about this work, please send e-mail to <a href="mailto:libin76@mail.sysu.edu.cn">libin76@mail.sysu.edu.cn</a> with your question. we are willing to answer questions about technical details or paper.</p>
+</div>
 
 ## 🎓 Citation
 If you find our work relevant to your research, please cite:
