@@ -120,12 +120,13 @@ $$
 X_{n-1} = X_N + \frac{1}{2n-1} \Big(X'_N\Delta t - \frac{1}{2n}\frac{\nabla_X U(X_n)}{M}(\Delta t)^{2}\Big), \quad n\ \rm{for}\ N\ to\ 1 
 $$
 
-where \(X_0\), \(X_N\), \(X_N'\) denote \(X(b)\), \(X(a)\), \(X'(a)\) respectively. According to the definition of derivative, the part of velocity of EdSr can be expressed as:
+where $X_0$, $X_N$, $X_N'$ denote $X(b)$, $X(a)$, $X'(a)$ respectively. According to the definition of derivative, the part of velocity of EdSr can be expressed as:
 $$
-\begin{cases}
-X_{n-1} & =  X_N + \frac{1}{2n-2} \Big(X'_N\Delta t - \frac{1}{2n-1}\frac{\nabla_X U(X_n)}{M}(\Delta t)^{2}\Big), & \quad n\ \rm{for}\ N\ to\ 2 \\ 
-X'_0 & =  X'_N - \frac{\nabla_X U(X_1)}{M}\Delta t,   & \quad  n = 1
-\end{cases}
+X_{n-1} =  X_N + \frac{1}{2n-2} \Big(X'_N\Delta t - \frac{1}{2n-1}\frac{\nabla_X U(X_n)}{M}(\Delta t)^{2}\Big), \quad n\ \rm{for}\ N\ to\ 2
+$$
+
+$$
+X'_0 =  X'_N - \frac{\nabla_X U(X_1)}{M}\Delta t,  \quad  n = 1
 $$
 where \(X'_0\) denotes \(X'(b)\). 
 
