@@ -31,76 +31,85 @@
 > The molecular dynamics (MD) simulation technique has been widely used in complex systems, but the time scale is limited due to the small timestep.  Here, we propose a novel method, named Exploratory dynamics Sampling with recursion (EdSr),  which an be used in MD simulation with flexible timestep, inspired by Langevin dynamics,  Stochastic Differential Equation and Taylor expansion formula.  By setting up four groups of experiments including simple function, ideal physical model, all-atom simulation and coarse-grained simulation,  we demonstrate that EdSr can dynamically and flexibly adjust the simulation timestep according to requirements during simulation period, and can work with larger timestep than the widely used velocity-Verlet integrator. Although this method can not perform perfectly at flexible timestep with all simulation systems, we believe that it will be a promising approach in the future.
 
 ## Code File Repository
-The **IdealPendulum**, **IdealSpring**, **solveEquation**, **twoBody** directories are as follows :
+The **IdealPendulum**, **IdealSpring**, **solveEquation**, **twoBody**, **ubiquitin**, **Indole** directories are as follows :
 ```
-EDSR
-├─IdealPendulum
-│  │  cur_draw.ipynb
-│  │  data.py
-│  │  idealPendulum_backup.py
-│  └─ init_draw.ipynb
-│
-├─IdealSpring
-│  │  cur_draw.ipynb
-│  │  idealSpring.py
-│  └─ init_draw.ipynb
-│
-├─solveEquation
-│  │  cur_draw.ipynb
-│  │  Equation.py
-│  │  Equation_firstOrder.py
-│  │  Equation_thirdOrder.py
-│  └─ init_draw.ipynb
-│
-├─twoBody
-│   │  check.ipynb
-│   │  cur_draw.ipynb
-│   │  data.py
-│   │  init_draw.ipynb
-│   │  trajectory.ipynb
-│   └─ twoBodies.py
-│
-├─ubiquitin
-│  ├─lmps
-│  │  │  dynamics.lammps
-│  │  │  in.lammps
-│  │  │  simulation.sh
-│  │
-│  └─our
-│     │  add_features.ipynb
-│     │  compute.py
-│     │  core.py
-│     │  EdSr.sh
-│     │  grid_loop.py
-│     │  paper_coord_rmsd_rg_10_20.ipynb
-│     │  paper_coord_rmsd_rg_30.ipynb
-│     │  paper_ke_epair_emol_press_10_20.ipynb
-│     │  paper_ke_epair_emol_press_30.ipynb
-│     │  paper_rdf_vdist_10_20.ipynb
-│     │  paper_rdf_vdist_30.ipynb
-│     │  trans_format.py
-│  
-└─ubiquitin_nowater
-    ├─martini_gmx
-    │     ...
-    │
-    └─our
-       │  add_features.ipynb
-       │  compute.py
-       │  core.py
-       │  EdSr.sh
-       │  grid_loop.py
-       │  paper_coord_rmsd_rg_20_30.ipynb
-       │  paper_ke_epair_emol_press_20_30.ipynb
-       │  paper_vdist_20_30.ipynb
-       │  trans_format.py
+├── Equation
+│   ├── Equation.py
+│   ├── Equation_thirdOrder.py
+│   ├── first_experiment.ipynb
+│   └── second_experiment.ipynb
+├── IdealPendulum
+│   ├── data.py
+│   ├── first_experiment.ipynb
+│   ├── idealPendulum.py
+│   └── second_experiment.ipynb
+├── IdealSpring
+│   ├── first_experiment.ipynb
+│   ├── idealSpring.py
+│   └── second_experiment.ipynb
+├── Indole
+│   ├── lmps
+│   │   ├── data_beta.lammps
+│   │   ├── in_beta.lammps
+│   │   └── nvt_1ns_indole.data
+│   └── our
+│       ├── compute.py
+│       ├── core_c.pyx
+│       ├── core.py
+│       ├── dataAnalysis.ipynb
+│       ├── data.py
+│       ├── draw.ipynb
+│       ├── EdSr.sh
+│       ├── grid_loop.py
+│       ├── paper_coord_rmsd.ipynb
+│       ├── paper_ke_epair_emol_press.ipynb
+│       ├── paper_rdf_vdist.ipynb
+│       └── setup.py
+├── twoBody
+│   ├── data.py
+│   ├── first_experiment.ipynb
+│   ├── seond_experiment.ipynb
+│   ├── show.ipynb
+│   ├── trajectory.ipynb
+│   └── twoBodies.py
+├── ubiquitin
+│   ├── lmps
+│   │   ├── dynamics.lammps
+│   │   ├── in.lammps
+│   │   └── simulation.sh
+│   ├── martini_gmx
+│   │   └──  ...
+│   └── our
+│       ├── add_features.ipynb
+│       ├── compute.py
+│       ├── core.py
+│       ├── EdSr.sh
+│       ├── grid_loop.py
+│       ├── paper_coord_rmsd_rg_10_20.ipynb
+│       ├── paper_coord_rmsd_rg_30.ipynb
+│       ├── paper_ke_epair_emol_press_10_20.ipynb
+│       ├── paper_ke_epair_emol_press_30.ipynb
+│       ├── paper_rdf_vdist_10_20.ipynb
+│       ├── paper_rdf_vdist_30.ipynb
+│       └── trans_format.py
+└── ubiquitin_nowater
+    ├── martini_gmx
+    │   └──  ...
+    └── our
+        ├── add_features.ipynb
+        ├── compute.py
+        ├── core.py
+        ├── EdSr.sh
+        ├── grid_loop.py
+        ├── paper_coord_rmsd_rg_20_30.ipynb
+        ├── paper_ke_epair_emol_press_20_30.ipynb
+        ├── paper_vdist_20_30.ipynb
+        └── trans_format.py
 ```
 
 ## 🛠️ Requirements
 
-<div class="admonition attention">
-<p class="admonition-title">PYTHON version &gt;= 3.11</p>
-</div>
+!!! warning PYTHON version >= 3.11
 
 Third-Party Package|Version|
 |:-:|:-:|
@@ -121,6 +130,7 @@ X_{n-1} = X_N + \frac{1}{2n-1} \Big(X'_N\Delta t - \frac{1}{2n}\frac{\nabla_X U(
 $$
 
 where $X_0$, $X_N$, $X_N'$ denote $X(b)$, $X(a)$, $X'(a)$ respectively. According to the definition of derivative, the part of velocity of EdSr can be expressed as:
+
 $$
 X_{n-1} =  X_N + \frac{1}{2n-2} \Big(X'_N\Delta t - \frac{1}{2n-1}\frac{\nabla_X U(X_n)}{M}(\Delta t)^{2}\Big), \quad n\ \rm{for}\ N\ to\ 2
 $$
@@ -128,13 +138,16 @@ $$
 $$
 X'_0 =  X'_N - \frac{\nabla_X U(X_1)}{M}\Delta t,  \quad  n = 1
 $$
-where \(X'_0\) denotes \(X'(b)\). 
+
+where $X'_0$ denotes $X'(b)$. 
 
 ## 📈 Results
 
-<div class="admonition note">
+!!! Note In this section, we only show figures for each experiment. if you are interested in our work, you can get to know from our [paper](https://arxiv.org/abs/2412.20978) and [supplementary](https://arxiv.org/abs/2412.20978).
+
+<!-- <div class="admonition note">
 <p class="admonition-title">In this section, we only show figures for each experiment. if you are interested in our work, you can get to know from <a href="https://arxiv.org/abs/2412.20978">our paper</a> and <a href="https://arxiv.org/abs/2412.20978">supplementary</a></p>
-</div>
+</div> -->
 
 ### Equation
 
@@ -241,7 +254,7 @@ drop_last=0 # 0, ~0 mean False, True in python, respectively. if
 logpath="log"
 # prefix=""
 
-# exec 2>&1>"${mode}_${ensemble}_basis${basis}_scale_intv${ntimestep}_frames${ntrajs}_iter${maxIter}_${bash_pid}.log"
+
 exec 2>&1>"${logpath}/${mode}_${ensemble}_basis${basis}_intv${ntimestep}_frames${ntrajs}_${bash_pid}.log"
 
 nohup python -u grid_loop.py --ntimestep $ntimestep --basis  $basis    --maxiter $maxIter --ntrajs $ntrajs \
