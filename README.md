@@ -193,9 +193,9 @@ where $X'_0$ denotes $X'(b)$.
 * **Gromacs** in [tutorial](https://www.gromacs.org/tutorial_webinar.html)
 
 ### Environment set up
-we highly recommand Conda because all of our experiments are run under [Miniconda](https://docs.anaconda.com/miniconda/) environment
+we highly recommend Conda because all of our experiments are run under [Miniconda](https://docs.anaconda.com/miniconda/) environment
 
-Before running every experiment, run the following command to build your Conda environment:
+Before performing every experiment, run the following command to build your Conda environment:
 ```bash
 conda create -n lammps python=3.11.5
 ```
@@ -203,6 +203,7 @@ and then run command `conda activate lammps` to test your environment.
 
 ### Examples
 we provide two choices for each experiment, you can choose one of them to run experiment.
+
 **For Equation**:
 1. run .ipynb file directly.
 2. edit Equation/Equation to select function that you want. Run command `python Equation.py` (**Equation_thirdOrder.py** file is for $y = x^3$)
@@ -225,7 +226,7 @@ we provide two choices for each experiment, you can choose one of them to run ex
 cd Indole/our
 bash EdSr.sh
 ```
-In the `EdSr.sh` bash file, code is shown as follows:
+In the `EdSr.sh` bash file, the code is shown as follows:
 ```bash
 #!/bin/bash
 
@@ -282,7 +283,7 @@ bash EdSr.sh
 *For data visualization, you can run .ipynb file directly after getting data.*
 
 <div class="admonition question">
-<p class="admonition-title">if you want to learn more about this work, please send e-mail to <a href="mailto:libin76@mail.sysu.edu.cn">libin76@mail.sysu.edu.cn</a> with your question. we are willing to answer questions about technical details or paper.</p>
+<p class="admonition-title">if you want to learn more about this work, feel free to send e-mail to <a href="mailto:libin76@mail.sysu.edu.cn">libin76@mail.sysu.edu.cn</a> with your question. we are willing to answer questions about technical details or scientific questions.</p>
 </div>
 
 ## 🎓 Citation
