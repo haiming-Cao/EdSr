@@ -10,7 +10,7 @@ import logging
 from tqdm import tqdm
 
 from config import data_parser
-from core import create_simulation, execute, VelocityVerlet
+from core import create_simulation_beta, execute, VelocityVerlet
 
 logging.basicConfig(
     level = logging.INFO,
@@ -104,7 +104,7 @@ def get_simulation(
 
     if simulation is None:
         step = basis_timestep if prerun_step > 0 or mode == 'benchmark' or mode == 'vv' else basis_timestep * ntimestep
-        simulation = create_simulation(thermo_out, lmpfile, step, cmdargs = list(cmdargs), num_threads = num_threads, ensemble = ensemble)
+        simulation = create_simulation_beta(thermo_out, lmpfile, step, cmdargs = list(cmdargs), num_threads = num_threads, ensemble = ensemble)
 
     cmd_history = ['LAMMPS Setting up:'] + simulation._cmd_history
     logging.info('\n\n' + '\n- '.join(cmd_history) + '\n')

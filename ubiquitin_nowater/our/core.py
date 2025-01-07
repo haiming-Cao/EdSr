@@ -18,34 +18,7 @@ ftm2v_coeff = {
     'nano': 1.0,
 }
 
-"""
-thermo_style = [
-    # energy
-    "pe", # total potential energy
-    "ke", # kinetic energy
-    "etotal", # total energy (pe + ke)
-    "evdwl", # van der Waals pairwise energy (includes etail)
-    "ecoul", # Coulombic pairwise energy
-    "epair", # pairwise energy (evdwl + ecoul + elong)
-    "ebond", # bond energy
-    "eangle", # angle energy
-    "edihed", # dihedral energy
-    "eimp", # improper energy
-    "emol", # molecular energy (ebond + eangle + edihed + eimp)
-    "elong", # long-range kspace energy
-    "etail", # van der Waals energy long-range tail correction
-    "enthalpy", # enthalpy (etotal + press*vol)
-    "ecouple", # cumulative energy change due to thermo/baro statting fixes
-    "econserve", # pe + ke + ecouple = etotal + ecouple
-    # properties
-    "atoms", # number of atoms
-    "temp", # temperature
-    "press", # pressure
-    "vol", # volume
-    "density", # mass density of system
-    lx,ly,lz = box lengths in x,y,z
-]
-"""
+
 
 thermo_style = [
     'custom', 'step', 'time', 'spcpu',
@@ -110,7 +83,7 @@ def create_simulation(thermo_ouput: list, infile: str | None = None, timestep = 
 
     MDsimulation.thermo_modify('lost/bond ignore')
 
-    MDsimulation.thermo_style(' '.join(thermo_style))
+    MDsimulation.thermo_style(' '.join(thermo_ouput))
 
     MDsimulation.timestep(timestep) # attn set timestep
 

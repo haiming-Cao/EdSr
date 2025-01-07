@@ -11,7 +11,7 @@ dielectric      1.0
 pair_modify     mix arithmetic
 special_bonds   lj/coul 0.0 0.0 1.0
 
-read_data       data_beta.lammps
+read_data       ../lmps/nvt_1ns_indole.data
 
 set		type 1 charge -0.55
 set		type 2 charge 1.1
@@ -23,25 +23,11 @@ kspace_style    pppm 1.0e-4
 
 
 neighbor	2.0 bin
-neigh_modify	delay 5 exclude molecule/intra zeo
-
-timestep        1.0
+neigh_modify	every 1 delay 0 check yes exclude molecule/intra zeo
 
 delete_bonds	zeo multi
 
 velocity        indole create 700.0 902144 dist gaussian
 velocity	zeo set 0.0 0.0 0.0
 
-fix		1 indole nvt temp 700.0 700.0 100.0
-
 compute         1 indole temp
-
-thermo		1000
-thermo_style    custom step time spcpu c_1 temp press pe ke enthalpy evdwl ecoul epair ebond eangle edihed elong etail emol ecouple econserve etotal
-
-dump nvt_dump all yaml 1000 eq.yaml id type x y z
-dump_modify nvt_dump sort id units yes thermo yes
-
-run		1000000
-
-write_data nvt_1ns_indole.data pair ij

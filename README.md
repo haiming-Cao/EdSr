@@ -27,82 +27,6 @@
 
 > The molecular dynamics (MD) simulation technique has been widely used in complex systems, but the time scale is limited due to the small timestep.  Here, we propose a novel method, named Exploratory dynamics Sampling with recursion (EdSr),  which an be used in MD simulation with flexible timestep, inspired by Langevin dynamics,  Stochastic Differential Equation and Taylor expansion formula.  By setting up four groups of experiments including simple function, ideal physical model, all-atom simulation and coarse-grained simulation,  we demonstrate that EdSr can dynamically and flexibly adjust the simulation timestep according to requirements during simulation period, and can work with larger timestep than the widely used velocity-Verlet integrator. Although this method can not perform perfectly at flexible timestep with all simulation systems, we believe that it will be a promising approach in the future.
 
-## Code File Repository
-The **IdealPendulum**, **IdealSpring**, **solveEquation**, **twoBody**, **ubiquitin**, **Indole** directories are as follows :
-```
-├── Equation
-│   ├── Equation.py
-│   ├── Equation_thirdOrder.py
-│   ├── first_experiment.ipynb
-│   └── second_experiment.ipynb
-├── IdealPendulum
-│   ├── data.py
-│   ├── first_experiment.ipynb
-│   ├── idealPendulum.py
-│   └── second_experiment.ipynb
-├── IdealSpring
-│   ├── first_experiment.ipynb
-│   ├── idealSpring.py
-│   └── second_experiment.ipynb
-├── Indole
-│   ├── lmps
-│   │   ├── data_beta.lammps
-│   │   ├── in_beta.lammps
-│   │   └── nvt_1ns_indole.data
-│   └── our
-│       ├── compute.py
-│       ├── core_c.pyx
-│       ├── core.py
-│       ├── dataAnalysis.ipynb
-│       ├── data.py
-│       ├── draw.ipynb
-│       ├── EdSr.sh
-│       ├── grid_loop.py
-│       ├── paper_coord_rmsd.ipynb
-│       ├── paper_ke_epair_emol_press.ipynb
-│       ├── paper_rdf_vdist.ipynb
-│       └── setup.py
-├── twoBody
-│   ├── data.py
-│   ├── first_experiment.ipynb
-│   ├── seond_experiment.ipynb
-│   ├── show.ipynb
-│   ├── trajectory.ipynb
-│   └── twoBodies.py
-├── ubiquitin
-│   ├── lmps
-│   │   ├── dynamics.lammps
-│   │   ├── in.lammps
-│   │   └── simulation.sh
-│   ├── martini_gmx
-│   │   └──  ...
-│   └── our
-│       ├── add_features.ipynb
-│       ├── compute.py
-│       ├── core.py
-│       ├── EdSr.sh
-│       ├── grid_loop.py
-│       ├── paper_coord_rmsd_rg_10_20.ipynb
-│       ├── paper_coord_rmsd_rg_30.ipynb
-│       ├── paper_ke_epair_emol_press_10_20.ipynb
-│       ├── paper_ke_epair_emol_press_30.ipynb
-│       ├── paper_rdf_vdist_10_20.ipynb
-│       ├── paper_rdf_vdist_30.ipynb
-│       └── trans_format.py
-└── ubiquitin_nowater
-    ├── martini_gmx
-    │   └──  ...
-    └── our
-        ├── add_features.ipynb
-        ├── compute.py
-        ├── core.py
-        ├── EdSr.sh
-        ├── grid_loop.py
-        ├── paper_coord_rmsd_rg_20_30.ipynb
-        ├── paper_ke_epair_emol_press_20_30.ipynb
-        ├── paper_vdist_20_30.ipynb
-        └── trans_format.py
-```
 
 ## 🛠️ Requirements
 
@@ -273,7 +197,7 @@ lmpfile="env_set.lammps"
 
 logpath="log"
 prefix="beta"
-debug=0 # ~0 denotes default arguments of debugging
+debug=0 # ~0 denotes use default arguments of debugging
 
 # exec 2>&1>"${mode}_${ensemble}_basis${basis}_scale_intv${ntimestep}_frames${ntrajs}_iter${maxIter}_${bash_pid}.log"
 exec 2>&1>"${logpath}/${prefix}_${mode}_${ensemble}_basis${basis}_intv${ntimestep}_frames${ntrajs}_${bash_pid}.log"
@@ -384,7 +308,7 @@ echo
 
 *After getting data, there are two choices for data visualization:*
 1. Use [jupyter notebook](https://jupyter.org/) to run .ipynb file directly. (*you can use conda to install the jupyter extension. Alternatively, you can install extension in VScode*)
-2. Install jupyter extension and use command `jupyter bnconvert --to script *.ipynb` to tranform `.ipynb` file to `*.py` file.
+2. Install jupyter extension and use command `jupyter bnconvert --to script *.ipynb` to tranform `*.ipynb` file to `*.py` file.
 
 > [!TIP]
 > if you want to learn more about this work, feel free to send e-mail to <a href="mailto:libin76@mail.sysu.edu.cn">libin76@mail.sysu.edu.cn</a> with your question. we are willing to answer questions about technical details or scientific questions.</p>

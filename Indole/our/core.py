@@ -21,34 +21,6 @@ ftm2v_coeff = {
     'nano': 1.0,
 }
 
-"""
-thermo_style = [
-    # energy
-    "pe", # total potential energy
-    "ke", # kinetic energy
-    "etotal", # total energy (pe + ke)
-    "evdwl", # van der Waals pairwise energy (includes etail)
-    "ecoul", # Coulombic pairwise energy
-    "epair", # pairwise energy (evdwl + ecoul + elong)
-    "ebond", # bond energy
-    "eangle", # angle energy
-    "edihed", # dihedral energy
-    "eimp", # improper energy
-    "emol", # molecular energy (ebond + eangle + edihed + eimp)
-    "elong", # long-range kspace energy
-    "etail", # van der Waals energy long-range tail correction
-    "enthalpy", # enthalpy (etotal + press*vol)
-    "ecouple", # cumulative energy change due to thermo/baro statting fixes
-    "econserve", # pe + ke + ecouple = etotal + ecouple
-    # properties
-    "atoms", # number of atoms
-    "temp", # temperature
-    "press", # pressure
-    "vol", # volume
-    "density", # mass density of system
-    lx,ly,lz = box lengths in x,y,z
-]
-"""
 
 thermo_style = [
     'custom', 'step', 'time', 'spcpu',
@@ -61,17 +33,8 @@ thermo_style = [
     'lx', 'ly', 'lz',
 ]
 
-def create_simulation(timestep = 0.2, cmdargs = None, num_threads: int = 1, ensemble: str = 'nve') -> IPyLammps:
+def env_preset(MDsimulation: PyLammps):
 
-    lmp = lammps(cmdargs=cmdargs)
-    
-    MDsimulation = PyLammps(ptr = lmp)
-
-    MDsimulation.enable_cmd_history = True
-    if num_threads > 1:
-        MDsimulation.package(f"omp {num_threads} neigh yes")
-        MDsimulation.suffix('omp')
-    
     MDsimulation.units('real')
     MDsimulation.atom_style('full')
 
@@ -86,79 +49,6 @@ def create_simulation(timestep = 0.2, cmdargs = None, num_threads: int = 1, ense
     MDsimulation.special_bonds('lj/coul 0.0 0.0 1.0')
     
     MDsimulation.read_data('../lmps/nvt_1ns_indole.data')
-
-    MDsimulation.atom_modify('sort 0 0.0') # turn off sort algorithm
-
-    MDsimulation.set('type 1 charge -0.55')
-    MDsimulation.set('type 2 charge 1.1')
-
-    MDsimulation.group('zeo type 1 2 ')
-    MDsimulation.group('indole type 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18')
-    
-    MDsimulation.kspace_style('pppm', 1e-4)
-
-    MDsimulation.neighbor('5.0 bin')
-    MDsimulation.neigh_modify('every 1 delay 0 check yes exclude molecule/intra zeo')
-
-    MDsimulation.delete_bonds('zeo multi')
-
-    MDsimulation.velocity('indole create 700.0 902144 dist gaussian')
-    MDsimulation.velocity('zeo set 0.0 0.0 0.0')
-    MDsimulation.velocity('indole scale 700.0')
-
-    # if ensemble == 'nvt':
-    #     MDsimulation.fix(f'1 indole nvt temp 700.0 700.0 0.01')
-    #     # MDsimulation.fix("1 indole temp/rescale 1 700.0 700.0 0.01 1.0")
-    #     # MDsimulation.fix("2 indole nve")
-    # elif ensemble == 'nve':
-    #     MDsimulation.fix('1 indole nve')
-    if ensemble == 'nvt':
-        MDsimulation.fix('1 indole langevin 700.0 700.0 0.01 902144 tally no')
-
-    MDsimulation.fix('2 indole nve')
-
-    MDsimulation.compute('1 indole temp')
-
-    MDsimulation.thermo_modify('lost/bond ignore')
-
-    MDsimulation.thermo_style(' '.join(thermo_style))
-
-    MDsimulation.timestep(timestep) # attn set timestep
-
-    # initialize system state
-    MDsimulation.run(0, 'pre yes post no')
-
-    MDsimulation.enable_cmd_history = False
-
-    return MDsimulation
-
-def create_simulation_beta(timestep = 0.2, cmdargs = None, num_threads: int = 1, ensemble: str = 'nve') -> IPyLammps:
-
-    lmp = lammps(cmdargs=cmdargs)
-    
-    MDsimulation = PyLammps(ptr = lmp)
-
-    MDsimulation.enable_cmd_history = True
-    if num_threads > 1:
-        MDsimulation.package(f"omp {num_threads} neigh yes")
-        MDsimulation.suffix('omp')
-    
-    MDsimulation.units('real')
-    MDsimulation.atom_style('full')
-
-    MDsimulation.pair_style('lj/cut/coul/long 12.0')
-    MDsimulation.bond_style('harmonic')
-    MDsimulation.angle_style('harmonic')
-    MDsimulation.dihedral_style('opls')
-    MDsimulation.improper_style('cvff')
-
-    MDsimulation.dielectric(1.0)
-    MDsimulation.pair_modify('mix arithmetic')
-    MDsimulation.special_bonds('lj/coul 0.0 0.0 1.0')
-    
-    MDsimulation.read_data('../lmps/nvt_1ns_indole.data')
-
-    MDsimulation.atom_modify('sort 0 0.0') # turn off sort algorithm
 
     MDsimulation.set('type 1 charge -0.55')
     MDsimulation.set('type 2 charge 1.1')
@@ -175,24 +65,32 @@ def create_simulation_beta(timestep = 0.2, cmdargs = None, num_threads: int = 1,
 
     # MDsimulation.velocity('indole create 700.0 902144 dist gaussian')
     MDsimulation.velocity('zeo set 0.0 0.0 0.0')
-    # MDsimulation.velocity('indole scale 700.0')
+    
+    MDsimulation.compute('1 indole temp')
 
-    # if ensemble == 'nvt':
-    #     MDsimulation.fix(f'1 indole nvt temp 700.0 700.0 0.01')
-    #     # MDsimulation.fix("1 indole temp/rescale 1 700.0 700.0 0.01 1.0")
-    #     # MDsimulation.fix("2 indole nve")
-    # elif ensemble == 'nve':
-    #     MDsimulation.fix('1 indole nve')
-    if ensemble == 'nvt':
-        MDsimulation.fix('1 indole langevin 700.0 700.0 0.01 902144 tally no')
+def create_simulation_beta(thermo_ouput: list, infile: str | None = None, timestep = 0.2, cmdargs = None, num_threads: int = 1, ensemble: str = 'nve') -> IPyLammps:
+
+    lmp = lammps(cmdargs=cmdargs)
+    
+    MDsimulation = PyLammps(ptr = lmp)
+
+    MDsimulation.enable_cmd_history = True
+    if num_threads > 1:
+        MDsimulation.package(f"omp {num_threads} neigh yes")
+        MDsimulation.suffix('omp')
+    
+    if infile is None:
+        env_preset(MDsimulation)
+    else:
+        MDsimulation.file(infile)
+    
+    MDsimulation.atom_modify('sort 0 0.0') # turn off sort algorithm
 
     MDsimulation.fix('2 indole nve')
 
-    MDsimulation.compute('1 indole temp')
-
     MDsimulation.thermo_modify('lost/bond ignore')
 
-    MDsimulation.thermo_style(' '.join(thermo_style))
+    MDsimulation.thermo_style(' '.join(thermo_ouput))
 
     MDsimulation.timestep(timestep) # attn set timestep
 
