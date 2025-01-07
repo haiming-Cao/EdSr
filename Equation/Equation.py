@@ -76,7 +76,7 @@ class Equation(object):
         # return y - 3 * y*y + 2*y*y*y # sigmoid
         # return -y # sinx
 
-    def computeTaylor(self, state, Dx, maxIter):
+    def computeEdSr(self, state, Dx, maxIter):
 
         y, dydx = state
 
@@ -129,7 +129,7 @@ class Equation(object):
             Dt = self.values[i + 1] - self.values[i]
 
             # attn EdSr computation
-            nextX, nextV = self.computeTaylor(trajs[i], Dt, maxIter)
+            nextX, nextV = self.computeEdSr(trajs[i], Dt, maxIter)
 
             traX, traV = self.compute_classic(ttrajs[i], Dt)
 
@@ -147,7 +147,7 @@ class Equation(object):
             traderror[i + 1] = np.fabs((traX - labelx))
             traverror[i + 1] = np.fabs((traV - labelv))
 
-            # // print(f"after {self.values[i + 1]:5.2f}s, taylor: [{nextX:+.11f},{nextV:+.11f}], GT: [{labelx:+.11f},{labelv:+.11f}], abs(diff/labelx) is {derror[i + 1]:.11f}, abs(diff/labelv) is {verror[i + 1]:.11f}")
+            # // print(f"after {self.values[i + 1]:5.2f}s, EdSr: [{nextX:+.11f},{nextV:+.11f}], GT: [{labelx:+.11f},{labelv:+.11f}], abs(diff/labelx) is {derror[i + 1]:.11f}, abs(diff/labelv) is {verror[i + 1]:.11f}")
         return trajs, derror, verror, traderror, traverror, mapederror, mapeverror
 
     # attn the first experiment, get f(x + n*dx) by f(x + (n-1)*dx)
@@ -173,7 +173,7 @@ class Equation(object):
             Dx = self.values[i] - start
 
             # attn EdSr computation
-            nextX, nextV = self.computeTaylor(init_state, Dx, maxIter)
+            nextX, nextV = self.computeEdSr(init_state, Dx, maxIter)
 
             traX, traV = self.compute_classic(init_state, Dx)
 
@@ -189,7 +189,7 @@ class Equation(object):
             traderror[i] = np.fabs((traX - labelx)) # attn error of velocity
             traverror[i] = np.fabs((traV - labelv))
             
-            # // print(f"after {Dt:5.2f}s, taylor: [{nextX:+.11f},{nextV:+.11f}], GT: [{labelx:+.11f},{labelv:+.11f}], abs(diff/labelx) is {derror[i]:.11f}, abs(diff/labelv) is {verror[i]:.11f}")
+            # // print(f"after {Dt:5.2f}s, EdSr: [{nextX:+.11f},{nextV:+.11f}], GT: [{labelx:+.11f},{labelv:+.11f}], abs(diff/labelx) is {derror[i]:.11f}, abs(diff/labelv) is {verror[i]:.11f}")
 
         return trajs, derror, verror, traderror, traverror, mapederror, mapeverror
     

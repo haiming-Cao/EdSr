@@ -47,7 +47,7 @@ class Equation(object):
         return -1e-3 * y
         # return 6
 
-    def computeTaylor(self, state, Dx, maxIter):
+    def computeEdSr(self, state, Dx, maxIter):
 
         y, dydx, d2ydx2 = state
 
@@ -82,7 +82,7 @@ class Equation(object):
             Dt = self.times[i + 1] - self.times[i]
 
 
-            nextX, nextV = self.computeTaylor(trajs[i], Dt, maxIter)
+            nextX, nextV = self.computeEdSr(trajs[i], Dt, maxIter)
 
             traX, traV = self.compute_classic(ttrajs[i], Dt)
 
@@ -97,7 +97,7 @@ class Equation(object):
             traderror[i + 1] = np.fabs((traX - labelx)/labelx)
             traverror[i + 1] = np.fabs((traV - labelv)/labelv)
 
-            # // print(f"after {self.times[i + 1]:5.2f}s, taylor: [{nextX:+.11f},{nextV:+.11f}], GT: [{labelx:+.11f},{labelv:+.11f}], abs(diff/labelx) is {derror[i + 1]:.11f}, abs(diff/labelv) is {verror[i + 1]:.11f}")
+            # // print(f"after {self.times[i + 1]:5.2f}s, EdSr: [{nextX:+.11f},{nextV:+.11f}], GT: [{labelx:+.11f},{labelv:+.11f}], abs(diff/labelx) is {derror[i + 1]:.11f}, abs(diff/labelv) is {verror[i + 1]:.11f}")
         return trajs, derror, verror, traderror, traverror
 
 
@@ -115,14 +115,14 @@ class Equation(object):
             Dx = self.values[i] - start
 
 
-            nextX = self.computeTaylor(init_state, Dx, maxIter)
+            nextX = self.computeEdSr(init_state, Dx, maxIter)
 
             labelx = self.getState(i)[0]
             trajs[i] = nextX
 
             derror[i] = np.fabs((nextX - labelx))
             
-            # // print(f"after {Dt:5.2f}s, taylor: [{nextX:+.11f},{nextV:+.11f}], GT: [{labelx:+.11f},{labelv:+.11f}], abs(diff/labelx) is {derror[i]:.11f}, abs(diff/labelv) is {verror[i]:.11f}")
+            # // print(f"after {Dt:5.2f}s, EdSr: [{nextX:+.11f},{nextV:+.11f}], GT: [{labelx:+.11f},{labelv:+.11f}], abs(diff/labelx) is {derror[i]:.11f}, abs(diff/labelv) is {verror[i]:.11f}")
 
         return trajs, derror
     

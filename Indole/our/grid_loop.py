@@ -1,17 +1,16 @@
 # coding: utf-8
-import sys,argparse,os
-from typing import Callable, Dict, Tuple, Literal, Union
+import argparse,os
+from typing import Literal
 
-from einops import rearrange
 import numpy as np
-from lammps import IPyLammps, PyLammps, lammps
+from lammps import IPyLammps, PyLammps
 
 import logging
 
 from tqdm import tqdm
 
-from core import create_simulation, execute, VelocityVerlet, create_simulation_beta
-# from core_c import create_simulation, execute, VelocityVerlet
+from config import data_parser
+from core import create_simulation, execute, VelocityVerlet
 
 logging.basicConfig(
     level = logging.INFO,
@@ -24,6 +23,8 @@ comm = MPI.COMM_WORLD
 
 np.set_printoptions(threshold = np.inf)
 
+def default(val, default_val):
+    return default_val if val is None else val
 
 def print_state(Lammps: IPyLammps | PyLammps) -> None:
     '''
@@ -50,14 +51,14 @@ def get_copy_current_state(Lammps: IPyLammps | PyLammps, properties_head: list[s
     other_ppties = [Lammps.lmp.get_thermo(ppty.lower()) for ppty in properties_head]
     return *basis_ppties, other_ppties 
 
-def get_state(Lammps: PyLammps, state: str):
-    llnp = Lammps.lmp.numpy
-    match state.lower():
-        case 'x' | 'mass' | 'v' | 'id' | 'f' | 'type':
-            data = llnp.extract_atom(state.lower())
-        case 'pe' | 'ke':
-            data = Lammps.lmp.get_thermo(state.lower())
-    return data
+# def get_state(Lammps: PyLammps, state: str):
+#     llnp = Lammps.lmp.numpy
+#     match state.lower():
+#         case 'x' | 'mass' | 'v' | 'id' | 'f' | 'type':
+#             data = llnp.extract_atom(state.lower())
+#         case 'pe' | 'ke':
+#             data = Lammps.lmp.get_thermo(state.lower())
+#     return data
 
 def check_pbc(Lammps: PyLammps, coords: np.ndarray) -> np.ndarray:
 
@@ -81,6 +82,7 @@ def get_simulation(
     ntrajs: int, 
     path: str,
     properties_head: list,
+    thermo_out: list,
     /,
     split: int = 1000,
     *,
@@ -89,12 +91,12 @@ def get_simulation(
     simulation: IPyLammps | PyLammps | None = None, 
     keep_state: bool = False,
     ensemble: str = 'nve',
-    mode: Literal['control', 'taylor', 'benchmark', 'vv'] = 'benchmark', 
+    mode: Literal['control', 'EdSr', 'benchmark', 'vv'] = 'benchmark', 
     maxIter: int = 400,
     disable_tqdm: bool = False,
-    scale: bool = False,
     prerun_step: int = 2,
     thermo: int = 20,
+    lmpfile: str | None = None,
 ) -> PyLammps | None:
     
     xtrajs, vtrajs, ppties = [], [], []
@@ -102,7 +104,7 @@ def get_simulation(
 
     if simulation is None:
         step = basis_timestep if prerun_step > 0 or mode == 'benchmark' or mode == 'vv' else basis_timestep * ntimestep
-        simulation = create_simulation_beta(step, cmdargs = list(cmdargs), num_threads = num_threads, ensemble = ensemble)
+        simulation = create_simulation(thermo_out, lmpfile, step, cmdargs = list(cmdargs), num_threads = num_threads, ensemble = ensemble)
 
     cmd_history = ['LAMMPS Setting up:'] + simulation._cmd_history
     logging.info('\n\n' + '\n- '.join(cmd_history) + '\n')
@@ -139,9 +141,6 @@ def get_simulation(
     ppties.append(ppty)
 
     thermo_output: dict = simulation.lmp.last_thermo()
-
-    # if thermo_output.get('Step', None) is not None:
-    #     thermo_output['Step'] = 0
         
     thermo_val = list(thermo_output.values())
     thermo_values.append(thermo_val)
@@ -165,8 +164,6 @@ def get_simulation(
                     if disable_tqdm and idx % thermo == 0:
 
                         thermo: dict = simulation.lmp.last_thermo()
-                        # if thermo.get('Step', None) is not None:
-                        #     thermo['Step'] = idx
                         
                         thermo_val = list(thermo.values())
                         thermo_values.append(thermo_val)
@@ -176,7 +173,7 @@ def get_simulation(
 
                     # save data
                     if len(xtrajs) == split and len(vtrajs) == split and len(ppties) == split:
-                        logging.info(f'saving {path}/frames{idx - split}_{idx + 1}.npz......')
+                        logging.info(f'Saving {path}/frames{idx - split}_{idx + 1}.npz......')
                         np.savez(
                             f'{path}/frames{idx - split}_{idx + 1}.npz', 
                             x = np.stack(xtrajs, axis = 0),
@@ -201,8 +198,8 @@ def get_simulation(
                     simulation.run(ntimestep, 'pre yes post no')
                 elif mode == 'control':
                     simulation.run(1, 'pre yes post no')
-                elif mode == 'taylor':
-                    execute(simulation, basis_timestep * ntimestep, maxIter, disable_tqdm = disable_tqdm, scale = scale)
+                elif mode == 'EdSr':
+                    execute(simulation, basis_timestep * ntimestep, maxIter, disable_tqdm = disable_tqdm)
                 elif mode == 'vv':
                     VelocityVerlet(simulation, basis_timestep, ntimestep, disable_tqdm = disable_tqdm)
                 
@@ -215,8 +212,6 @@ def get_simulation(
                 if disable_tqdm and idx % thermo == 0:
 
                     thermo_output: dict = simulation.lmp.last_thermo()
-                    # if thermo_output.get('Step', None) is not None:
-                    #     thermo_output['Step'] = idx
                     
                     thermo_val = list(thermo_output.values())
                     thermo_values.append(thermo_val)
@@ -226,7 +221,7 @@ def get_simulation(
 
                 # save data
                 if len(xtrajs) == split and len(vtrajs) == split and len(ppties) == split:
-                    logging.info(f'saving {path}/frames{idx - split + 1}_{idx}.npz......')
+                    logging.info(f'Saving {path}/frames{idx - split + 1}_{idx}.npz......')
                     np.savez(
                         f'{path}/frames{idx - split + 1}_{idx}.npz', 
                         x = np.stack(xtrajs, axis = 0), 
@@ -245,8 +240,6 @@ def get_simulation(
             else:
                 if idx % thermo != 0:
                     thermo_output: dict = simulation.lmp.last_thermo()
-                    # if thermo_output.get('Step', None) is not None:
-                    #     thermo_output['Step'] = ntrajs
                     thermo_val = list(thermo_output.values())
                     thermo_values.append(thermo_val)
                     format_thermo_val = ''.join(map(lambda x: '{:>15}' if isinstance(x, int) else '{:>15.2f}', thermo_output.values())).format(*thermo_val)
@@ -254,7 +247,7 @@ def get_simulation(
 
             if not drop_last and len(xtrajs) > 0 and len(vtrajs) > 0 and len(ppties) > 0:
                 
-                logging.info(f'saving {path}/frames{ntrajs - len(xtrajs)}_{ntrajs}.npz......')
+                logging.info(f'Saving {path}/frames{ntrajs - len(xtrajs)}_{ntrajs}.npz......')
                 np.savez(
                     f'{path}/frames{ntrajs - len(xtrajs)}_{ntrajs}.npz', 
                     x = np.stack(xtrajs, axis = 0),
@@ -268,6 +261,7 @@ def get_simulation(
 
     except Exception as e:
         if not drop_last and len(xtrajs) > 0 and len(vtrajs) > 0 and len(ppties) > 0:
+            x, v, id, mass, atype, ppty = get_copy_current_state(simulation, properties_head)
             logging.error(f'raise Exception, saving {path}/frames{idx - len(xtrajs)}_{idx + 1}.npz......')
             np.savez(
                 f'{path}/frames{idx - len(xtrajs)}_{idx + 1}.npz', 
@@ -280,7 +274,7 @@ def get_simulation(
             )
             xtrajs.clear(); vtrajs.clear(); ppties.clear()
 
-        logging.error("something wrong", exc_info = True)
+        logging.error("Something wrong", exc_info = True)
         raise
         
     
@@ -289,7 +283,7 @@ def get_simulation(
         np.save(f'{path}/thermo.npy', thermo_values)
         
     except Exception as e:
-        logging.error((f"something wrong, thermo can not convert to ndarray and save to npy file"), exc_info = True)
+        logging.error((f"Something wrong, thermo can not convert to ndarray and save to npy file"), exc_info = True)
         raise
 
     if not keep_state:
@@ -301,47 +295,41 @@ def get_simulation(
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--ntimestep', type = int, help = 'interval', default = 100)
-parser.add_argument('--basis', type = float, help = 'timestep of bbenchmark', default = 0.01)
-parser.add_argument('--maxiter', type = int, help = 'taylor iteration', default = None)
-parser.add_argument('--ntrajs', type = int, help = 'frames', default = 100)
-parser.add_argument('--mode', type = str, help = 'benchmark, control, taylor, vv', default = 'benchmark')
-parser.add_argument('--en', type = str, help = 'ensemble: nvt, nve', default = 'nve')
-parser.add_argument('--scale', type = int, help = 'scale: 0, ~0 mean False, True in python, respectively', default = 0)
-parser.add_argument('--prerun_step', type = int, help = 'prerun_step >= 0, integer', default = 0)
+
+# attn priority: debug > the rest of external arguments > default
+
+# debug argument
+parser.add_argument('--debug', type = int, help = 'use a group of debugging params by default', default = 0)
+
+# the rest of external arguments
+parser.add_argument('--ntimestep', type = int, help = 'Interval', default = None)
+parser.add_argument('--basis', type = float, help = 'timestep of benchmark', default = None)
+parser.add_argument('--maxiter', type = int, help = 'EdSr iteration', default = None)
+parser.add_argument('--ntrajs', type = int, help = 'frames', default = None)
+parser.add_argument('--mode', type = str, help = 'benchmark, control, EdSr, vv', default = None)
+parser.add_argument('--en', type = str, help = 'ensemble: nve, nvt(not implement so far)', default = None)
+parser.add_argument('--prerun_step', type = int, help = 'prerun_step >= 0, integer', default = None)
 parser.add_argument('--prefix', type = str, help = 'prefix of file name', default = None)
-parser.add_argument('--thermo', type = int, help = 'positive integer. similar to the LAMMPS thermo command', default = 20)
-parser.add_argument('--split', type = int, help = 'number of frames saving to each npz file, non-positive number means the total trajectory will be save into a npz file', default = 10000)
-parser.add_argument('--drop_last', type = int, help = 'whether drop the last group of which frames will not be divided by split args or not. 0, ~0 denoted that False, True respectively.', default = 0)
-# option
+parser.add_argument('--thermo', type = int, help = 'positive integer. similar to the LAMMPS thermo command', default = None)
+parser.add_argument('--split', type = int, help = 'number of frames saving to each npz file, non-positive number means the total trajectory will be save into a npz file', default = None)
+parser.add_argument('--drop_last', type = int, help = 'whether drop the last group of which frames will not be divided by split args or not. 0, ~0 denoted that False, True respectively.', default = None)
 parser.add_argument('--savepath', type = str, help = 'path of saving file', default = None)
 parser.add_argument('--fdname', type = str, help = 'saving folder name', default = None)
-parser.add_argument('--debug', type = int, help = 'use a group of debugging params by default', default = 0)
+parser.add_argument('--lmpfile', type = str, help = 'LAMMPS input', default = None)
+
+# default
+parser.add_argument('--params', type = str, help = 'json file path of default params.', default = "params.json")
+
 args = parser.parse_args()
+default_params = data_parser(args.params)
+
 
 # mode
-mode: Literal['benchmark', 'control', 'taylor', 'vv'] = args.mode.lower()
+mode: Literal['benchmark', 'control', 'EdSr', 'vv'] = default(args.mode, default_params['mode'])
 
 # need to get properties
-properties_head = [
-    'temp', # temperature
-    'press', # pressure
-    "pe", # total potential energy
-    "ke", # kinetic energy
-    "etotal", # total energy (pe + ke)
-    "evdwl", # van der Waals pairwise energy (includes etail)
-    "ecoul", # Coulombic pairwise energy
-    "epair", # pairwise energy (evdwl + ecoul + elong)
-    "ebond", # bond energy
-    "eangle", # angle energy
-    "edihed", # dihedral energy
-    "eimp", # improper energy
-    "emol", # molecular energy (ebond + eangle + edihed + eimp)
-    "elong", # long-range kspace energy
-    "etail", # van der Waals energy long-range tail correction
-    "enthalpy", # enthalpy (etotal + press*vol)
-    "ecouple", # cumulative energy change due to thermo/baro statting fixes
-]
+properties_head = default_params['properties_saving']
+thermo_output = default_params['thermo_output']
 
 debug = True if args.debug != 0 else False
 
@@ -349,29 +337,29 @@ if not debug:
 
     # MD setting
     cmdargs        = ["-log", "none"] # args: https://docs.lammps.org/latest/Run_options.html 
-    basis_timestep = args.basis
-    ntimestep      = args.ntimestep
-    ensemble       = args.en
-    thermo         = 20 if args.thermo <= 0 else args.thermo
+    basis_timestep = default(args.basis, default_params['basis'])
+    ntimestep      = default(args.ntimestep, default_params['ntimestep'])
+    ensemble       = default(args.en, default_params['ensemble'])
+    thermo         = default(args.thermo, default_params['thermo'])
 
-    # taylor params setting
-    maxIter        = args.maxiter # attn taylor equation number of order
-    ntrajs         = args.ntrajs
+    # EdSr params setting
+    maxIter        = default(args.maxiter, default_params['maxIter']) # attn EdSr number of order
+    ntrajs         = default(args.ntrajs, default_params['ntrajs'])
+    prerun_step    = default(args.prerun_step, default_params['prerun_step'])
     Delta_t        = basis_timestep * ntimestep
-    scale          = True if bool(args.scale) and mode == 'taylor' and ensemble == 'nvt' else False
-    prerun_step    = args.prerun_step
 
     # saving data setting
-    folder         = args.fdname
-    savepath       = args.savepath
-    prefix         = args.prefix
-    split          = args.split
-    drop_last      = args.drop_last
+    folder         = default(args.fdname, default_params['fdname'])
+    savepath       = default(args.savepath, default_params['savepath'])
+    prefix         = default(args.prefix, default_params['prefix'])
+    split          = default(args.split, default_params['split'])
+    drop_last      = default(bool(args.drop_last), default_params['drop_last'])
+    lmpfile        = default(args.lmpfile, None)
 
 else:
     # mode
     logging.info('debugging......')
-    mode = 'taylor'
+    mode = 'EdSr'
     
     # MD setting
     cmdargs        = ["-log", "none"] # args: https://docs.lammps.org/latest/Run_options.html 
@@ -379,12 +367,12 @@ else:
     ntimestep      = 100
     ensemble       = 'nve'
     thermo         = 1
+    lmpfile        = None
 
-    # taylor params setting
-    maxIter        = 500 # attn taylor equation number of order
-    ntrajs         = 100
+    # EdSr params setting
+    maxIter        = 500 # attn EdSr equation number of order
+    ntrajs         = 30
     Delta_t        = basis_timestep * ntimestep
-    scale          = False
     prerun_step    = 0
 
     # saving data setting
@@ -395,13 +383,8 @@ else:
     drop_last      = False
 
 
-
-assert scale == False, 'Not Implemented Error'
-
-
 # visualization setting
 disable_tqdm = True
-
 
 
 
@@ -409,16 +392,16 @@ if savepath is None:
     savepath = 'data/'
     if not os.path.exists('./data/'):
         os.mkdir('./data')
-    logging.info(f'because savepath is not given, the save path will use {savepath} by default')
+    logging.info(f'Because savepath is not given, the save path will use {savepath} by default')
 else:
-    assert os.path.exists(savepath), "savepath don't exists"
+    assert os.path.exists(savepath), "Argument savepath don't exists"
 
 if folder is None:
-    folder = f"{mode}_{ensemble}{'_prerun' if mode != 'benchmark' and prerun_step > 0 else ''}{'_scale' if (mode == 'taylor' or mode == 'vv') and scale == True and ensemble == 'nvt' else ''}_basis{basis_timestep}_intv{ntimestep}" + (f'_iter{maxIter}' if maxIter is not None and mode == 'taylor' else '')
-    logging.info(f'fdname argument given is None, folder name will be initialized to {folder}')
+    folder = f"{mode}_{ensemble}{'_prerun' if mode != 'benchmark' and prerun_step > 0 else ''}_basis{basis_timestep}_intv{ntimestep}" + (f'_iter{maxIter}' if maxIter is not None and mode == 'EdSr' else '')
+    logging.info(f'Since fdname argument given is None, folder name will be initially set to {folder}')
 
 if prefix not in ['', None]:
-    logging.info(f'concat the prefix and folder name -> {prefix + folder}')
+    logging.info(f'Concat the prefix and folder name -> {prefix + folder}')
     folder = prefix + '_' + folder
 
 
@@ -434,7 +417,7 @@ if os.path.exists(savepath + folder):
 logging.info(f'{savepath}/{folder} directory will be created to save data')
 os.mkdir(f'{savepath}/{folder}')
 
-common_dict_params = dict(
+dict_params = dict(
     split        = split,
     drop_last    = drop_last,
     mode         = mode,
@@ -442,22 +425,20 @@ common_dict_params = dict(
     ensemble     = ensemble,
     prerun_step  = prerun_step,
     thermo       = thermo,
+    lmpfile      = lmpfile,
 )
 
 try:
     match mode:
-        case 'benchmark' | 'control' | 'vv':
-            ppties = get_simulation(basis_timestep, ntimestep, cmdargs, ntrajs, f'{savepath}/{folder}/', properties_head, **common_dict_params)
-
-        case 'taylor':
-            ppties = get_simulation(basis_timestep, ntimestep, cmdargs, ntrajs, f'{savepath}/{folder}/', properties_head, **common_dict_params, scale = scale)
+        case 'benchmark' | 'control' | 'vv' | 'EdSr':
+            ppties = get_simulation(basis_timestep, ntimestep, cmdargs, ntrajs, f'{savepath}/{folder}/', properties_head, thermo_output,  **dict_params)
 
         case _:
-            logging.error(f"mode should be (benchmark, control, taylor), but got {mode}")
+            logging.error(f"Argument mode should be (benchmark, control, EdSr), but got {mode}")
             raise
 
-    logging.info('program has done')
+    logging.info('Program has done')
 
 except Exception as e:
-    logging.error("something wrong", exc_info = True)
+    logging.error("Something wrong", exc_info = True)
     raise Exception

@@ -103,7 +103,7 @@ class TwoBody(object):
 
     #     return -Uenergy
     
-    def computeTaylor(self, state, Dt, maxIter, xi: None = None) -> np.ndarray:
+    def computeEdSr(self, state, Dt, maxIter, xi: None = None) -> np.ndarray:
 
         x, v = state[:, 1:3], state[:, 3:5]
         mass = state[:, 0:1]
@@ -141,7 +141,7 @@ class TwoBody(object):
 
         return nextState
     
-    def computeTaylor_parallel(self, state, Dt, maxIter, xi: None = None) -> np.ndarray:
+    def computeEdSr_parallel(self, state, Dt, maxIter, xi: None = None) -> np.ndarray:
 
         mass = state[:, 0:1]
 
@@ -232,7 +232,7 @@ class TwoBody(object):
         # * Parallel
         with ProcessPoolExecutor(max_workers = 12) as executor:
 
-            exefunc = partial(self.computeTaylor, init, maxIter = maxIter, xi = None)
+            exefunc = partial(self.computeEdSr, init, maxIter = maxIter, xi = None)
 
             futures = list(tqdm(executor.map(exefunc, self.times[1:] - start), total = trajs.shape[0] - 1))
             
@@ -241,7 +241,7 @@ class TwoBody(object):
 
             Dt = self.times[i] - start
 
-            # nextState = self.computeTaylor(init, Dt, maxIter, xi = None)
+            # nextState = self.computeEdSr(init, Dt, maxIter, xi = None)
             nextState = future
             tra_nextState = self.compute_classic(init, Dt)
 
@@ -261,7 +261,7 @@ class TwoBody(object):
             traderror[i] = tra_deps
             traverror[i] = tra_veps
 
-            # // print(f"after {Dt:5.2f}s: \n\ttaylor result: {nextState[:, 1:].reshape(-1)}\n\tgt: {labelState[:, 1:].reshape(-1)}\n\tabs(diff/labelx) is {deps:.13f}\n\tabs(diff/labelv) is {veps:.13f}")
+            # // print(f"after {Dt:5.2f}s: \n\tEdSr result: {nextState[:, 1:].reshape(-1)}\n\tgt: {labelState[:, 1:].reshape(-1)}\n\tabs(diff/labelx) is {deps:.13f}\n\tabs(diff/labelv) is {veps:.13f}")
 
         return trajs, derror, verror, traderror, traverror
 
@@ -284,8 +284,8 @@ class TwoBody(object):
 
             Dt = self.times[i + 1] - self.times[i]
 
-            nextState = self.computeTaylor(trajs[i], Dt, maxIter)
-            # nextState = self.computeTaylor_parallel(trajs[i], Dt, maxIter)
+            nextState = self.computeEdSr(trajs[i], Dt, maxIter)
+            # nextState = self.computeEdSr_parallel(trajs[i], Dt, maxIter)
             tra_nextState = self.compute_classic(ttrajs[i], Dt)
 
             labelState = self.getState(i + 1)
@@ -303,7 +303,7 @@ class TwoBody(object):
             traderror[i + 1] = tra_deps
             traverror[i + 1] = tra_veps
 
-            # // print(f"after {self.times[i + 1]:5.2f}s: \n\ttaylor result: {nextState[:, 1:].reshape(-1)}\n\tgt: {labelState[:, 1:].reshape(-1)}\n\tabs(diff/labelx) is {deps:.13f}\n\tabs(diff/labelv) is {veps:.13f}")
+            # // print(f"after {self.times[i + 1]:5.2f}s: \n\tEdSr result: {nextState[:, 1:].reshape(-1)}\n\tgt: {labelState[:, 1:].reshape(-1)}\n\tabs(diff/labelx) is {deps:.13f}\n\tabs(diff/labelv) is {veps:.13f}")
 
         return trajs, derror, verror, traderror, traverror
         

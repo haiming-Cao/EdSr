@@ -7,9 +7,9 @@ from tqdm import tqdm
 parser = argparse.ArgumentParser()
 parser.add_argument('--intv', type = int, help = 'interval', default = 30)
 parser.add_argument('--basis', type = float, help = 'timestep of bbenchmark', default = 1.0)
-parser.add_argument('--maxiter', type = int, help = 'taylor iteration', default = None)
+parser.add_argument('--maxiter', type = int, help = 'EdSr iteration', default = None)
 parser.add_argument('--gfile', type = str, help = 'path of GlobalVariable.npz', default = 'GlobalVariable.npz')
-parser.add_argument('--dfile', type = str, help = 'scale: 0, ~0 mean False, True in python, respectively', default = 0)
+parser.add_argument('--dfile', type = str, help = 'data file', default = "frames1_10000.npz")
 parser.add_argument('--format', type = str, help = 'xyz', default = 0)
 args = parser.parse_args()
 

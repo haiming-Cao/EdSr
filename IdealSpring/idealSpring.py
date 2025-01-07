@@ -39,7 +39,7 @@ class IdealSpring(object):
         return -x
     
 
-    def computeTaylor(self, state, Dt, maxIter, split = 8):
+    def computeEdSr(self, state, Dt, maxIter, split = 8):
 
         x, v = state    
 
@@ -89,7 +89,7 @@ class IdealSpring(object):
             Dt = self.times[i + 1] - self.times[i]
 
             # attn EdSr computation
-            nextX, nextV = self.computeTaylor(trajs[i], Dt, maxIter)
+            nextX, nextV = self.computeEdSr(trajs[i], Dt, maxIter)
 
             # ! compute displacement and velocity using  xt = x0 + vt + 0.5 * a * t * t 
             traX, traV = self.VelocityVerlet(ttrajs[i], Dt)
@@ -126,7 +126,7 @@ class IdealSpring(object):
             Dt = self.times[i] - start
 
             # attn EdSr computation
-            nextX, nextV = self.computeTaylor(trajs[0], Dt, maxIter)
+            nextX, nextV = self.computeEdSr(trajs[0], Dt, maxIter)
 
             # ! compute displacement and velocity using  xt = x0 + vt + 0.5 * a * t * t 
             traX, traV = self.VelocityVerlet(trajs[0], Dt)

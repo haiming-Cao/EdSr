@@ -46,7 +46,7 @@ class IdealPendulum(object):
         return -4* np.sin(x)
 
 
-    def computeTaylor(self, status, Dt, maxIter, xi = None):
+    def computeEdSr(self, status, Dt, maxIter, xi = None):
 
         x, v = status
 
@@ -97,7 +97,7 @@ class IdealPendulum(object):
         for i in tqdm(range(1, trajs.shape[0])):
             Dt = self.times[i] - start
             
-            nextX, nextV = self.computeTaylor(trajs[0], Dt, maxIter)
+            nextX, nextV = self.computeEdSr(trajs[0], Dt, maxIter)
             traX, traV = self.compute_classic(trajs[0], Dt)
             labelx, labelv = self.getState(i)
             trajs[i] = nextX, nextV
@@ -105,7 +105,7 @@ class IdealPendulum(object):
             verror[i] = np.fabs((nextV - labelv))
             traderror[i] = np.fabs((traX - labelx))
             traverror[i] = np.fabs((traV - labelv))
-            # print(f"after {Dt:5.2f}s, taylor: [{nextX:+.11f},{nextV:+.11f}], GT: [{labelx:+.11f},{labelv:+.11f}], abs(diff/labelx) is {derror[i]:.11f}, abs(diff/labelv) is {verror[i]:.11f}")
+            # print(f"after {Dt:5.2f}s, EdSr: [{nextX:+.11f},{nextV:+.11f}], GT: [{labelx:+.11f},{labelv:+.11f}], abs(diff/labelx) is {derror[i]:.11f}, abs(diff/labelv) is {verror[i]:.11f}")
 
         return trajs, derror, verror, traderror, traverror
     
@@ -125,7 +125,7 @@ class IdealPendulum(object):
         for i in tqdm(range(trajs.shape[0] - 1)):
             Dt = self.times[i + 1] - self.times[i]
 
-            nextX, nextV = self.computeTaylor(trajs[i], Dt, maxIter)
+            nextX, nextV = self.computeEdSr(trajs[i], Dt, maxIter)
             traX, traV = self.compute_classic(trajs[i], Dt)
 
             labelx, labelv = self.getState(i + 1)
@@ -139,7 +139,7 @@ class IdealPendulum(object):
             traderror[i + 1] = np.fabs((traX - labelx))
             traverror[i + 1] = np.fabs((traV - labelv))
             
-            # print(f"after {self.times[i + 1] - start:5.2f}s, taylor: [{nextX:+.11f},{nextV:+.11f}], GT: [{labelx:+.11f},{labelv:+.11f}], abs(diff/labelx) is {derror[i + 1]:.11f}, abs(diff/labelv) is {verror[i + 1]:.11f}")
+            # print(f"after {self.times[i + 1] - start:5.2f}s, EdSr: [{nextX:+.11f},{nextV:+.11f}], GT: [{labelx:+.11f},{labelv:+.11f}], abs(diff/labelx) is {derror[i + 1]:.11f}, abs(diff/labelv) is {verror[i + 1]:.11f}")
 
         return trajs, derror, verror, traderror, traverror
 
@@ -153,11 +153,11 @@ class IdealPendulum(object):
         for i in tqdm(range(trajs.shape[0] - 1)):
             Dt = self.times[i + 1] - self.times[i]
 
-            nextX, nextV = self.computeTaylor(trajs[i], Dt, maxIter)
+            nextX, nextV = self.computeEdSr(trajs[i], Dt, maxIter)
 
             trajs[i + 1] = nextX, nextV
             
-            # print(f"after {self.times[i + 1] - start:5.2f}s, taylor: [{nextX:+.11f},{nextV:+.11f}], GT: [{labelx:+.11f},{labelv:+.11f}], abs(diff/labelx) is {derror[i + 1]:.11f}, abs(diff/labelv) is {verror[i + 1]:.11f}")
+            # print(f"after {self.times[i + 1] - start:5.2f}s, EdSr: [{nextX:+.11f},{nextV:+.11f}], GT: [{labelx:+.11f},{labelv:+.11f}], abs(diff/labelx) is {derror[i + 1]:.11f}, abs(diff/labelv) is {verror[i + 1]:.11f}")
 
         return trajs
     

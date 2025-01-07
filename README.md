@@ -11,7 +11,7 @@
     </p>
     </p>  
     <a href="https://github.com/haiming-Cao/EdSr/blob/main/LICENSE">
-    <img alt="GitHub License" src="https://img.shields.io/github/license/haiming-Cao/EdSr?style=flat&color=blue">
+    <img alt="GitHub License" src="https://img.shields.io/github/license/haiming-Cao/EdSr?style=flat&label=License&color=blue">
     </a>
     <a href="https://arxiv.org/abs/2412.20978">
     <img alt="Static Badge" src="https://img.shields.io/badge/Arxiv-2412.20978-green">
@@ -22,9 +22,6 @@
 </a>
 
 </div>
-
-
-<!-- [ArXiv Link]() | [Supplementary]() -->
 
 ## Overview
 
@@ -109,7 +106,8 @@ The **IdealPendulum**, **IdealSpring**, **solveEquation**, **twoBody**, **ubiqui
 
 ## 🛠️ Requirements
 
-!!! warning PYTHON version >= 3.11
+> [!IMPORTANT] 
+> PYTHON version >= 3.11
 
 Third-Party Package|Version|
 |:-:|:-:|
@@ -122,6 +120,9 @@ Third-Party Package|Version|
 |mpi4py|>=3.1.6|
 
 ## 📖 Method
+
+> [!TIP]
+> If you set the value N smaller such as 3 and then expand the formula, you will find that this is a Taylor formula.
 
 The part of displacement of EdSr can be rewritten as the following form:
 
@@ -143,7 +144,8 @@ where $X'_0$ denotes $X'(b)$.
 
 ## 📈 Results
 
-!!! Note In this section, we only show figures for each experiment. if you are interested in our work, you can get to know from our [paper](https://arxiv.org/abs/2412.20978) and [supplementary](https://arxiv.org/abs/2412.20978).
+> [!NOTE] 
+> In this section, we only show figures for each experiment. if you are interested in our work, you can get to know from our [paper](https://arxiv.org/abs/2412.20978) and [supplementary](https://arxiv.org/abs/2412.20978).
 
 <!-- <div class="admonition note">
 <p class="admonition-title">In this section, we only show figures for each experiment. if you are interested in our work, you can get to know from <a href="https://arxiv.org/abs/2412.20978">our paper</a> and <a href="https://arxiv.org/abs/2412.20978">supplementary</a></p>
@@ -193,7 +195,7 @@ where $X'_0$ denotes $X'(b)$.
 * **Gromacs** in [tutorial](https://www.gromacs.org/tutorial_webinar.html)
 
 ### Environment set up
-we highly recommend Conda because all of our experiments are run under [Miniconda](https://docs.anaconda.com/miniconda/) environment
+We highly recommend Conda because all of our experiments are run under [Miniconda](https://docs.anaconda.com/miniconda/) environment
 
 Before performing every experiment, run the following command to build your Conda environment:
 ```bash
@@ -202,22 +204,26 @@ conda create -n lammps python=3.11.5
 and then run command `conda activate lammps` to test your environment.
 
 ### Examples
-we provide two choices for each experiment, you can choose one of them to run experiment.
+We provide two choices for each experiment, you can choose one of them to run experiment.
 
 **For Equation**:
-1. run .ipynb file directly.
-2. edit Equation/Equation to select function that you want. Run command `python Equation.py` (**Equation_thirdOrder.py** file is for $y = x^3$)
+1. Use [jupyter notebook](https://jupyter.org/) to run .ipynb file directly. (*Alternatively, you can isntall extension in VScode*)
+2. Install jupyter extension and use command `jupyter bnconvert --to script *.ipynb` to tranform `.ipynb` file to `*.py` file. Then you can use command `python *.py` to visualize your data.
+3. Edit Equation/Equation to select function that you want. Run command `python Equation.py` (**Equation_thirdOrder.py** file is for $y = x^3$)
 
 **For IdealSpring**:
-1. run .ipynb file directly.
+1. Use [jupyter notebook](https://jupyter.org/) to run .ipynb file directly. (*Alternatively, you can isntall extension in VScode*)
+2. Install jupyter extension and use command `jupyter bnconvert --to script *.ipynb` to tranform `.ipynb` file to `*.py` file. Then you can use command `python *.py` to visualize your data.
 2. run command `python idealSpring.py`
 
 **For IdealPendulum**:
-1. run .ipynb file directly.
+1. Use [jupyter notebook](https://jupyter.org/) to run .ipynb file directly. (*Alternatively, you can isntall extension in VScode*)
+2. Install jupyter extension and use command `jupyter bnconvert --to script *.ipynb` to tranform `.ipynb` file to `*.py` file. Then you can use command `python *.py` to visualize your data.
 2. run command `python idealPendulum.py`
 
 **For twoBody**
-1. run .ipynb file for simplicity
+1. Use [jupyter notebook](https://jupyter.org/) to run .ipynb file directly. (*Alternatively, you can isntall extension in VScode*)
+2. Install jupyter extension and use command `jupyter bnconvert --to script *.ipynb` to tranform `.ipynb` file to `*.py` file. Then you can use command `python *.py` to visualize your data.
 2. if you want to test your data, you can edit `twoBodies.py` and then run command `python twoBodies.py`.
 
 **For Indole**:
@@ -239,39 +245,70 @@ export OMP_NUM_THREADS=16
 
 bash_pid=$$
 
+
+# path of default arguments
+jsonfile="params.json"
+
 ntimestep=30
-basis=1.0 # benchmark timestep
-maxIter=500 # attn taylor equation number of order
-ntrajs=20000 # number of frames
-mode="taylor" # ['benchmark', 'control', 'taylor', 'vv']
-ensemble="nve" # condition, only support nve condition so far.
-scale=0 # 0, ~0 mean False, True in python, respectively
 
-prerun_step=0 # before run MD or taylor, you can set this value to run "benchmark" timestep.
+# benchmark timestep
+basis=1.0 
+# EdSr equation number of order
+maxIter=500
+# number of frames
+ntrajs=20000 
+# choose one in ['benchmark', 'control', 'EdSr', 'vv']
+mode="EdSr" 
+# condition, only support nve condition so far.
+ensemble="nve" 
+# before run MD or EdSr, you can set this value to run "benchmark" timestep.
+prerun_step=0 
+# positive integer. similar to the LAMMPS thermo command.
+thermo=200 
+# 0, ~0 mean False, True in python, respectively.
+# Taking split argument is 100 and drop_last argument is 1 for example, if you run 105 step, the last 5 step will be dropped.
+drop_last=0 
+# number of frames saving to each npz file, non-positive number means the total trajectory will be save into a npz file
+split=10000 
+# if you do not want to write basical setting of your simulation in the core.py, you can provide path of env_set.lammps.
+# Except you understand how the program run, don't write some commands in your env_set.lammps (details in README.md).
+lmpfile="env_set.lammps" 
 
-thermo=200 # positive integer. similar to the LAMMPS thermo command
-split=10000 # number of frames saving to each npz file, non-positive number means the total trajectory will be save into a npz file
-drop_last=0 # 0, ~0 mean False, True in python, respectively. if 
 logpath="log"
 # prefix=""
 
-
 exec 2>&1>"${logpath}/${mode}_${ensemble}_basis${basis}_intv${ntimestep}_frames${ntrajs}_${bash_pid}.log"
 
-nohup python -u grid_loop.py --ntimestep $ntimestep --basis  $basis    --maxiter $maxIter --ntrajs $ntrajs \
-                             --mode      $mode      --en     $ensemble --scale   $scale   --prerun_step $prerun_step \
-                             --thermo    $thermo    --split  $split    --drop_last $drop_last &
+# nohup python -u grid_loop.py --params $jsonfile --basis $basis    --ntimestep   $ntimestep   --maxiter $maxIter \
+#                              --mode   $mode     --en    $ensemble --prerun_step $prerun_step --ntrajs  $ntrajs \
+#                              --thermo $thermo   --split $split    --drop_last   $drop_last   --lmpfile $lmpfile &
+
+nohup python -u grid_loop.py --params $jsonfile &
 
 py_pid=$!
 echo 
 echo "Current Bash ID: ${bash_pid}"
 echo "Python Process ID: ${py_pid}"
 echo 
-
 ```
 You can edit these variables according to your need. For example, if you want to change timestep, you can edit variables `basis` and `ntimestep` in `EdSr.sh` bash file. Benchmark timestep is `basis`. MD or EdSr timestep is `basis * ntimestep`.
 
-*For data visualization, you can run .ipynb file directly after getting data.*
+> [!WARNING]
+> Except you understand how the program run, don't write the following commands in your env_set.lammps:
+
+|Command||
+|:-:|:-:|
+|atom_modify|the program has disabled the sort function using command `sort 0 0.0` in `core.py`.|
+|fix nve/nvt|you can modify `create_simulation` function in `core.py`.|
+|thermo_style |alternatively, you can edit `params.json`.|
+|timestep |same as `thermo_style`|
+|package / suffix| the program has used  `package omp num_threads neigh yes` and `suffix omp`|
+|thermo_modify| we have used `thermo_modify lost/bond ignore` in the program, please clearly understand conflict or restrictions between them.|
+|thermo| we have set thermo value to 1 in the program.
+
+*After getting data, there are two choices for data visualization:*
+1. Use [jupyter notebook](https://jupyter.org/) to run .ipynb file directly. (*Alternatively, you can isntall extension in VScode*)
+2. Install jupyter extension and use command `jupyter bnconvert --to script *.ipynb` to tranform `.ipynb` file to `*.py` file. Then you can use command `python *.py` to visualize your data.
 
 **For ubiquitin[_nowater]**
 Before running experiment, you need to generate structure file sppuorted by LAMMPS, namely that you either directly data file supported by **LAMMPS** or generate file supported by **GROMACS** firstly, and then tranform **GROMACS** files to LAMMPS files. 
@@ -280,11 +317,16 @@ After that, you can run the following command:
 cd ubiquitin[_nowater]/our
 bash EdSr.sh
 ```
-*For data visualization, you can run .ipynb file directly after getting data.*
+*After getting data, there are two choices for data visualization:*
+1. Use [jupyter notebook](https://jupyter.org/) to run .ipynb file directly. (*Alternatively, you can isntall extension in VScode*)
+2. Install jupyter extension and use command `jupyter bnconvert --to script *.ipynb` to tranform `.ipynb` file to `*.py` file.
 
-<div class="admonition question">
-<p class="admonition-title">if you want to learn more about this work, feel free to send e-mail to <a href="mailto:libin76@mail.sysu.edu.cn">libin76@mail.sysu.edu.cn</a> with your question. we are willing to answer questions about technical details or scientific questions.</p>
-</div>
+> [!TIP]
+> if you want to learn more about this work, feel free to send e-mail to <a href="mailto:libin76@mail.sysu.edu.cn">libin76@mail.sysu.edu.cn</a> with your question. we are willing to answer questions about technical details or scientific questions.</p>
+
+
+## ✨ Star
+If you find this work very interesting, please don't hesitate to give us a star🌟. **Thank you so much**
 
 ## 🎓 Citation
 If you find our work relevant to your research, please cite:

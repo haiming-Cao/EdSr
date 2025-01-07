@@ -226,7 +226,7 @@ def gradientFunction(Lammps: IPyLammps | PyLammps, Position: np.ndarray) -> np.n
 
 
 
-def compute_Taylor(
+def compute_EdSr(
     Lammps: IPyLammps, 
     SystemState: Tuple[np.ndarray, np.ndarray], 
     Dt: float, 
@@ -258,7 +258,7 @@ def compute_Taylor(
     
     xn = x.copy()
     vn = x.copy()
-    with tqdm(total = maxIter, desc = 'taylor Iteration: ', leave = False, position = 1, disable = disable_tqdm) as taylor_bar:
+    with tqdm(total = maxIter, desc = 'EdSr Iteration: ', leave = False, position = 1, disable = disable_tqdm) as edsr_bar:
         for n in range(maxIter, 0, -1):
             xcoeff = 2.0 * n
             vcoeff = 2.0 * n
@@ -284,11 +284,11 @@ def compute_Taylor(
                 vn = np.where(vn < blo, vn + blen, vn)
                 vn = np.where(vn < bhi, vn, vn - blen)
 
-            taylor_bar.update()
+            edsr_bar.update()
     
     return xn, vn
 
-def compute_Taylor_notqdm(
+def compute_EdSr_notqdm(
     Lammps: IPyLammps, 
     SystemState: Tuple[np.ndarray, np.ndarray], 
     Dt: float, 
@@ -362,10 +362,9 @@ def execute(
     Dt: float, 
     maxIter: int,
     disable_tqdm: bool = False, 
-    scale: bool = False
 ) -> None:
     """
-    execute a step of the whole taylor algorithm
+    execute a step of the whole EdSr algorithm
     """
     
     # get the initial state of system
@@ -384,13 +383,10 @@ def execute(
         [Lammps.system.xhi, Lammps.system.yhi, Lammps.system.zhi]
     ])
     
-    # newX, newV = compute_Taylor(Lammps, SystemState, Dt, maxIter, boundary, shielding_matrix, disable_tqdm = disable_tqdm)
-    newX, newV = compute_Taylor_notqdm(Lammps, SystemState, Dt, maxIter, boundary, shielding_matrix, disable_tqdm = disable_tqdm)
+    # newX, newV = compute_EdSr(Lammps, SystemState, Dt, maxIter, boundary, shielding_matrix, disable_tqdm = disable_tqdm)
+    newX, newV = compute_EdSr_notqdm(Lammps, SystemState, Dt, maxIter, boundary, shielding_matrix, disable_tqdm = disable_tqdm)
 
     lmpX[:], lmpV[:] = newX, newV
-    
-    if scale:
-        Lammps.velocity('indole scale 700.0')
 
     return 
 

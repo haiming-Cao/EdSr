@@ -58,17 +58,8 @@ thermo_style = [
     'lx', 'ly', 'lz',
 ]
 
-def create_simulation(timestep = 0.2, cmdargs = None, num_threads: int = 1, ensemble: str = 'nve') -> IPyLammps:
+def env_preset(MDsimulation: PyLammps):
 
-    lmp = lammps(cmdargs=cmdargs)
-    
-    MDsimulation = PyLammps(ptr = lmp)
-
-    MDsimulation.enable_cmd_history = True
-    if num_threads > 1:
-        MDsimulation.package(f"omp {num_threads} neigh yes")
-        MDsimulation.suffix('omp')
-    
     MDsimulation.units('real')
     MDsimulation.atom_style('full')
 
@@ -84,18 +75,36 @@ def create_simulation(timestep = 0.2, cmdargs = None, num_threads: int = 1, ense
     
     MDsimulation.read_data('../lmps/data/nve_protein.data')
 
-    MDsimulation.atom_modify('sort 0 0.0') # turn off sort algorithm
-
     MDsimulation.group('protein id 1:163')
 
     MDsimulation.neighbor('10.0 bin')
 
     MDsimulation.neigh_modify('every 1 delay 0 check yes')
+    
+
+def create_simulation(thermo_ouput: list, infile: str | None = None, timestep = 0.2, cmdargs = None, num_threads: int = 1, ensemble: str = 'nve') -> IPyLammps:
+
+    lmp = lammps(cmdargs=cmdargs)
+    
+    MDsimulation = PyLammps(ptr = lmp)
+
+    MDsimulation.enable_cmd_history = True
+    if num_threads > 1:
+        MDsimulation.package(f"omp {num_threads} neigh yes")
+        MDsimulation.suffix('omp')
+
+    if infile is None:
+        env_preset(MDsimulation)
+    else:
+        MDsimulation.file(infile)
+
     if ensemble == 'nvt':
         raise NotImplementedError
     elif ensemble == 'nve':
         MDsimulation.fix('1 all nve')
     # MDsimulation.fix('eqfix all nvt temp 300.0 300.0 100.0')
+        
+    MDsimulation.atom_modify('sort 0 0.0') # turn off sort algorithm
         
     MDsimulation.thermo(1)
 
@@ -136,7 +145,7 @@ def gradientFunction(Lammps: IPyLammps | PyLammps, Position: np.ndarray) -> np.n
 
 
 
-def compute_Taylor(
+def compute_EdSr(
     Lammps: IPyLammps, 
     SystemState: Tuple[np.ndarray, np.ndarray], 
     Dt: float, 
@@ -169,7 +178,7 @@ def compute_Taylor(
     
     xn = x.copy()
     vn = x.copy()
-    with tqdm(total = maxIter, desc = 'taylor Iteration: ', leave = False, position = 1, disable = disable_tqdm) as taylor_bar:
+    with tqdm(total = maxIter, desc = 'EdSr Iteration: ', leave = False, position = 1, disable = disable_tqdm) as edsr_bar:
         for n in range(maxIter, 0, -1):
             xcoeff = 2.0 * n
             vcoeff = 2.0 * n
@@ -195,7 +204,7 @@ def compute_Taylor(
                 vn = np.where(vn < blo, vn + blen, vn)
                 vn = np.where(vn < bhi, vn, vn - blen)
 
-            taylor_bar.update()
+            edsr_bar.update()
     
     return xn, vn
 
@@ -206,10 +215,9 @@ def execute(
     Dt: float, 
     maxIter: int, 
     disable_tqdm: bool = False, 
-    scale: bool = False
 ) -> None:
     """
-    execute a step of the whole taylor algorithm
+    execute a step of the whole EdSr algorithm
     """
     
     # get the initial state of system
@@ -229,12 +237,9 @@ def execute(
         [Lammps.system.xhi, Lammps.system.yhi, Lammps.system.zhi]
     ])
     
-    newX, newV = compute_Taylor(Lammps, SystemState, Dt, maxIter, gradientFunction, boundary, shielding_matrix, disable_tqdm = disable_tqdm)
+    newX, newV = compute_EdSr(Lammps, SystemState, Dt, maxIter, gradientFunction, boundary, shielding_matrix, disable_tqdm = disable_tqdm)
 
     lmpX[:], lmpV[:] = newX, newV
-    
-    if scale:
-        Lammps.velocity('all scale 700.0')
 
     return 
 
