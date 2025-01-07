@@ -207,23 +207,23 @@ and then run command `conda activate lammps` to test your environment.
 We provide two choices for each experiment, you can choose one of them to run experiment.
 
 **For Equation**:
-1. Use [jupyter notebook](https://jupyter.org/) to run .ipynb file directly. (*Alternatively, you can isntall extension in VScode*)
-2. Install jupyter extension and use command `jupyter bnconvert --to script *.ipynb` to tranform `.ipynb` file to `*.py` file. Then you can use command `python *.py` to visualize your data.
+1. Use [jupyter notebook](https://jupyter.org/) to run .ipynb file directly. (*you can use conda to install the jupyter extension. Alternatively, you can install extension in VScode*)
+2. Install jupyter extension and use command `jupyter bnconvert --to script *.ipynb` to tranform `*.ipynb` file to `*.py` file. Then you can use command `python *.py` to visualize your data.
 3. Edit Equation/Equation to select function that you want. Run command `python Equation.py` (**Equation_thirdOrder.py** file is for $y = x^3$)
 
 **For IdealSpring**:
-1. Use [jupyter notebook](https://jupyter.org/) to run .ipynb file directly. (*Alternatively, you can isntall extension in VScode*)
-2. Install jupyter extension and use command `jupyter bnconvert --to script *.ipynb` to tranform `.ipynb` file to `*.py` file. Then you can use command `python *.py` to visualize your data.
+1. Use [jupyter notebook](https://jupyter.org/) to run .ipynb file directly. (*you can use conda to install the jupyter extension. Alternatively, you can install extension in VScode*)
+2. Install jupyter extension and use command `jupyter bnconvert --to script *.ipynb` to tranform `*.ipynb` file to `*.py` file. Then you can use command `python *.py` to visualize your data.
 2. run command `python idealSpring.py`
 
 **For IdealPendulum**:
-1. Use [jupyter notebook](https://jupyter.org/) to run .ipynb file directly. (*Alternatively, you can isntall extension in VScode*)
-2. Install jupyter extension and use command `jupyter bnconvert --to script *.ipynb` to tranform `.ipynb` file to `*.py` file. Then you can use command `python *.py` to visualize your data.
+1. Use [jupyter notebook](https://jupyter.org/) to run .ipynb file directly. (*you can use conda to install the jupyter extension. Alternatively, you can install extension in VScode*)
+2. Install jupyter extension and use command `jupyter bnconvert --to script *.ipynb` to tranform `*.ipynb` file to `*.py` file. Then you can use command `python *.py` to visualize your data.
 2. run command `python idealPendulum.py`
 
 **For twoBody**
-1. Use [jupyter notebook](https://jupyter.org/) to run .ipynb file directly. (*Alternatively, you can isntall extension in VScode*)
-2. Install jupyter extension and use command `jupyter bnconvert --to script *.ipynb` to tranform `.ipynb` file to `*.py` file. Then you can use command `python *.py` to visualize your data.
+1. Use [jupyter notebook](https://jupyter.org/) to run .ipynb file directly. (*you can use conda to install the jupyter extension. Alternatively, you can install extension in VScode*)
+2. Install jupyter extension and use command `jupyter bnconvert --to script *.ipynb` to tranform `*.ipynb` file to `*.py` file. Then you can use command `python *.py` to visualize your data.
 2. if you want to test your data, you can edit `twoBodies.py` and then run command `python twoBodies.py`.
 
 **For Indole**:
@@ -307,8 +307,8 @@ You can edit these variables according to your need. For example, if you want to
 |thermo| we have set thermo value to 1 in the program.
 
 *After getting data, there are two choices for data visualization:*
-1. Use [jupyter notebook](https://jupyter.org/) to run .ipynb file directly. (*Alternatively, you can isntall extension in VScode*)
-2. Install jupyter extension and use command `jupyter bnconvert --to script *.ipynb` to tranform `.ipynb` file to `*.py` file. Then you can use command `python *.py` to visualize your data.
+1. Use [jupyter notebook](https://jupyter.org/) to run .ipynb file directly. (*you can use conda to install the jupyter extension. Alternatively, you can install extension in VScode*)
+2. Install jupyter extension and use command `jupyter bnconvert --to script *.ipynb` to tranform `*.ipynb` file to `*.py` file. Then you can use command `python *.py` to visualize your data.
 
 **For ubiquitin[_nowater]**
 Before running experiment, you need to generate structure file sppuorted by LAMMPS, namely that you either directly data file supported by **LAMMPS** or generate file supported by **GROMACS** firstly, and then tranform **GROMACS** files to LAMMPS files. 
@@ -318,7 +318,7 @@ cd ubiquitin[_nowater]/our
 bash EdSr.sh
 ```
 *After getting data, there are two choices for data visualization:*
-1. Use [jupyter notebook](https://jupyter.org/) to run .ipynb file directly. (*Alternatively, you can isntall extension in VScode*)
+1. Use [jupyter notebook](https://jupyter.org/) to run .ipynb file directly. (*you can use conda to install the jupyter extension. Alternatively, you can install extension in VScode*)
 2. Install jupyter extension and use command `jupyter bnconvert --to script *.ipynb` to tranform `.ipynb` file to `*.py` file.
 
 > [!TIP]
