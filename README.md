@@ -236,6 +236,94 @@ In the `EdSr.sh` bash file, the code is shown as follows:
 ```bash
 #!/bin/bash
 
+source ~/miniconda3/etc/profile.d/conda.sh
+source activate lammps
+
+export OMP_NUM_THREADS=16
+
+bash_pid=$$
+
+# path of default arguments
+jsonfile="params.json"
+
+ntimestep=30
+
+# benchmark timestep
+basis=1.0 
+# EdSr equation number of order
+maxIter=500
+# number of frames
+ntrajs=20000 
+# choose one in ['benchmark', 'control', 'EdSr', 'vv']
+mode="EdSr" 
+# condition, only support nve condition so far.
+ensemble="nve" 
+# before run MD or EdSr, you can set this value to run "benchmark" timestep.
+prerun_step=0 
+# positive integer. similar to the LAMMPS thermo command.
+thermo=200 
+# 0, ~0 mean False, True in python, respectively.
+# Taking split argument is 100 and drop_last argument is 1 for example, if you run 105 step, the last 5 step will be dropped.
+drop_last=0 
+# number of frames saving to each npz file, non-positive number means the total trajectory will be save into a npz file
+split=10000 
+# if you do not want to write basical setting of your simulation in the core.py, you can provide path of env_set.lammps.
+# Except you understand how the program run, don't write some commands in your env_set.lammps (details in README.md).
+lmpfile="env_set.lammps" 
+
+logpath="log"
+prefix="beta"
+debug=0 # ~0 denotes default arguments of debugging
+
+# exec 2>&1>"${mode}_${ensemble}_basis${basis}_scale_intv${ntimestep}_frames${ntrajs}_iter${maxIter}_${bash_pid}.log"
+exec 2>&1>"${logpath}/${prefix}_${mode}_${ensemble}_basis${basis}_intv${ntimestep}_frames${ntrajs}_${bash_pid}.log"
+
+# # the first choice to run the program
+# nohup python -u grid_loop.py --ntrajs $ntrajs --en      $ensemble --basis  $basis  --ntimestep   $ntimestep \
+#                              --split  $split  --lmpfile $lmpfile  --debug  $debug  --prerun_step $prerun_step \
+#                              --thermo $thermo --maxiter $maxIter  --mode   $mode   --drop_last   $drop_last \
+#                              --prefix $prefix &
+
+# the second choice to run the program
+nohup python -u grid_loop.py --params $jsonfile &
+
+py_pid=$!
+echo 
+echo "Current Bash ID: ${bash_pid}"
+echo "Python Process ID: ${py_pid}"
+echo 
+```
+You can edit these variables according to your need. For example, if you want to change timestep, you can edit variables `basis` and `ntimestep` in `EdSr.sh` bash file. Benchmark timestep is `basis`. MD or EdSr timestep is `basis * ntimestep`.
+
+> [!WARNING]
+> Except you understand how the program run, don't write the following commands in your env_set.lammps:
+
+|Command||
+|:-:|:-:|
+|atom_modify|the program has disabled the sort function using command `sort 0 0.0` in `core.py`.|
+|fix nve/nvt|you can modify `create_simulation` function in `core.py`.|
+|thermo_style |alternatively, you can edit `params.json`.|
+|timestep |same as `thermo_style`|
+|package / suffix| the program has used  `package omp num_threads neigh yes` and `suffix omp`|
+|thermo_modify| we have used `thermo_modify lost/bond ignore` in the program, please clearly understand conflict or restrictions between them.|
+|thermo| we have set thermo value to 1 in the program.
+
+*After getting data, there are two choices for data visualization:*
+1. Use [jupyter notebook](https://jupyter.org/) to run .ipynb file directly. (*you can use conda to install the jupyter extension. Alternatively, you can install extension in VScode*)
+2. Install jupyter extension and use command `jupyter bnconvert --to script *.ipynb` to tranform `*.ipynb` file to `*.py` file. Then you can use command `python *.py` to visualize your data.
+
+**For ubiquitin[_nowater]**
+Before running experiment, you need to generate structure file sppuorted by LAMMPS, namely that you either directly data file supported by **LAMMPS** or generate file supported by **GROMACS** firstly, and then tranform **GROMACS** files to LAMMPS files. 
+After that, you can run the following command:
+```bash
+cd ubiquitin[_nowater]/our
+bash EdSr.sh
+```
+
+In the `EdSr.sh` bash file, the code is shown as follows:
+```bash
+#!/bin/bash
+
 # activate your conda env
 source ~/miniconda3/etc/profile.d/conda.sh
 source activate lammps
@@ -279,10 +367,12 @@ logpath="log"
 
 exec 2>&1>"${logpath}/${mode}_${ensemble}_basis${basis}_intv${ntimestep}_frames${ntrajs}_${bash_pid}.log"
 
+# # the first choice to run the program
 # nohup python -u grid_loop.py --params $jsonfile --basis $basis    --ntimestep   $ntimestep   --maxiter $maxIter \
 #                              --mode   $mode     --en    $ensemble --prerun_step $prerun_step --ntrajs  $ntrajs \
 #                              --thermo $thermo   --split $split    --drop_last   $drop_last   --lmpfile $lmpfile &
 
+# the second choice to run the program
 nohup python -u grid_loop.py --params $jsonfile &
 
 py_pid=$!
@@ -291,32 +381,7 @@ echo "Current Bash ID: ${bash_pid}"
 echo "Python Process ID: ${py_pid}"
 echo 
 ```
-You can edit these variables according to your need. For example, if you want to change timestep, you can edit variables `basis` and `ntimestep` in `EdSr.sh` bash file. Benchmark timestep is `basis`. MD or EdSr timestep is `basis * ntimestep`.
 
-> [!WARNING]
-> Except you understand how the program run, don't write the following commands in your env_set.lammps:
-
-|Command||
-|:-:|:-:|
-|atom_modify|the program has disabled the sort function using command `sort 0 0.0` in `core.py`.|
-|fix nve/nvt|you can modify `create_simulation` function in `core.py`.|
-|thermo_style |alternatively, you can edit `params.json`.|
-|timestep |same as `thermo_style`|
-|package / suffix| the program has used  `package omp num_threads neigh yes` and `suffix omp`|
-|thermo_modify| we have used `thermo_modify lost/bond ignore` in the program, please clearly understand conflict or restrictions between them.|
-|thermo| we have set thermo value to 1 in the program.
-
-*After getting data, there are two choices for data visualization:*
-1. Use [jupyter notebook](https://jupyter.org/) to run .ipynb file directly. (*you can use conda to install the jupyter extension. Alternatively, you can install extension in VScode*)
-2. Install jupyter extension and use command `jupyter bnconvert --to script *.ipynb` to tranform `*.ipynb` file to `*.py` file. Then you can use command `python *.py` to visualize your data.
-
-**For ubiquitin[_nowater]**
-Before running experiment, you need to generate structure file sppuorted by LAMMPS, namely that you either directly data file supported by **LAMMPS** or generate file supported by **GROMACS** firstly, and then tranform **GROMACS** files to LAMMPS files. 
-After that, you can run the following command:
-```bash
-cd ubiquitin[_nowater]/our
-bash EdSr.sh
-```
 *After getting data, there are two choices for data visualization:*
 1. Use [jupyter notebook](https://jupyter.org/) to run .ipynb file directly. (*you can use conda to install the jupyter extension. Alternatively, you can install extension in VScode*)
 2. Install jupyter extension and use command `jupyter bnconvert --to script *.ipynb` to tranform `.ipynb` file to `*.py` file.
