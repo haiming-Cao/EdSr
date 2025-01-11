@@ -48,7 +48,7 @@ Third-Party Package|Version|
 > [!TIP]
 > If you set the value N smaller such as 3 and then expand the formula, you will find that this is a Taylor formula.
 
-Assume that the initial state is ($X_t$, $X'_t$) and the next state ($X_{t + \Delta t}$, $X'_{t + \Delta t}$). The part of displacement of EdSr can be rewritten as the following form:
+Assume that the initial state is ($X_t$, $X_t'$) and the next state ($X_{t + \Delta t}$, $X_{t + \Delta t}'$). The part of displacement of EdSr can be rewritten as the following form:
 
 $$
 X_{n-1} = X_N + \frac{1}{2n-1} \Big(X'_N\Delta t - \frac{1}{2n}\frac{\nabla_X U(X_n)}{M}(\Delta t)^{2}\Big), \quad n\ \rm{for}\ N\ to\ 1 
@@ -64,7 +64,7 @@ $$
 X'_0 =  X'_N - \frac{\nabla_X U(X_1)}{M}\Delta t,  \quad  n = 1
 $$
 
-where $X'_{0}$ denotes $X'_{t + \Delta t}$. 
+where $X_{0}'$ denotes $X_{t + \Delta t}'$. 
 
 ## 📈 Results
 
