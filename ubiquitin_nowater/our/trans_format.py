@@ -1,32 +1,25 @@
 # coding: utf-8
-import sys,argparse,os
-from typing import Callable, Dict, Tuple, Literal, Union
-
-from einops import rearrange
+import argparse
 import numpy as np
-from lammps import IPyLammps, PyLammps, lammps
-
-import logging
 
 from tqdm import tqdm
-
-import numpy as np
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--intv', type = int, help = 'interval', default = 30)
 parser.add_argument('--basis', type = float, help = 'timestep of bbenchmark', default = 1.0)
 parser.add_argument('--maxiter', type = int, help = 'EdSr iteration', default = None)
-parser.add_argument('--gfile', type = str, help = 'ensemble: nvt, nve', default = 'GlobalVariable.npz')
+parser.add_argument('--gfile', type = str, help = 'name of GlobalVariable.npz', default = 'GlobalVariable.npz')
 parser.add_argument('--dfile', type = str, help = 'data file', default = "frames1_10000.npz")
 parser.add_argument('--format', type = str, help = 'xyz', default = 0)
+parser.add_argument('--mode', type = str, help = 'benchmark, control, EdSr', default = 'benchmark')
 args = parser.parse_args()
 
 
 intv = args.intv
 basis = args.basis
+mode = args.mode
 
-path = f'data//benchmark_nve_basis{basis}_intv{intv}//'
+path = f'data//{mode}_nve_basis{basis}_intv{intv}//'
 pathlist = [x for x in path.split('/') if x != '']
 name = pathlist[-1]
 
