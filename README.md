@@ -64,7 +64,7 @@ $$
 X'_0 =  X'_N - \frac{\nabla_X U(X_1)}{M}\Delta t,  \quad  n = 1
 $$
 
-where $X'_0$ denotes $X'_{t + \Delta t}$. 
+where $X'_{0}$ denotes $X'_{t + \Delta t}$. 
 
 ## 📈 Results
 
