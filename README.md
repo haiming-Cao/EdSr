@@ -46,18 +46,22 @@ Third-Party Package|Version|
 ## 📖 Method
 
 > [!TIP]
-> If you set the value N smaller such as 3 and then expand the formula, you will find that this is a Taylor formula.
+> The reason why it is an exploratory algorithm is that the process is like a person taking a tentative step with two feet in the dark. try to imagine the process.
+> - Firstly, you will use the left foot to test around for N times since you can't see the way under your feet. During this period, the left foot will be farther and farther away from the right foot (corresponding to the process of the algorithm from N to 2). 
+> - In the last step, the right foot will be moved to the left foot (corresponding to the process of n=1).
+
+![edsr](./Images/md/edsr.jpg)
 
 Assume that the initial state is ($X_t$, $X_t'$) and the next state ($X_{t + \Delta t}$, $X_{t + \Delta t}'$). The part of displacement of EdSr can be rewritten as the following form:
 
 $$
-X_{n-1} = X_N + \frac{1}{2n-1} \Big(X'_N\Delta t - \frac{1}{2n}\frac{\nabla_X U(X_n)}{M}(\Delta t)^{2}\Big), \quad n\ \rm{for}\ N\ to\ 1 
+X_{n-1} = X_N + \frac{1}{2n-1} \Big(X'_N\Delta t - \frac{1}{2n}\frac{\nabla_X U(X_n)}{M}\Delta t^{2}\Big), \quad n\ \rm{for}\ N\ to\ 1 
 $$
 
 where $X_0$, $X_N$, $X_N'$ denote $X_{t + \Delta t}$, $X_t$, $X'_t$ respectively. According to the definition of derivative, the part of velocity of EdSr can be expressed as:
 
 $$
-X_{n-1} =  X_N + \frac{1}{2n-2} \Big(X'_N\Delta t - \frac{1}{2n-1}\frac{\nabla_X U(X_n)}{M}(\Delta t)^{2}\Big), \quad n\ \rm{for}\ N\ to\ 2
+X_{n-1} =  X_N + \frac{1}{2n-2} \Big(X'_N\Delta t - \frac{1}{2n-1}\frac{\nabla_X U(X_n)}{M}\Delta t^{2}\Big), \quad n\ \rm{for}\ N\ to\ 2
 $$
 
 $$
@@ -65,6 +69,16 @@ X'_0 =  X'_N - \frac{\nabla_X U(X_1)}{M}\Delta t,  \quad  n = 1
 $$
 
 where $X_{0}'$ denotes $X_{t + \Delta t}'$. 
+
+> ![TIP]
+> Another intuitive explanation is that each iteration will ''merge'' the last two terms of Taylor expansion, and the operation of ''merge'' here is not really ''merge''. The last ''merge'' operation is the solution of a Newton equation of motion.
+
+![taylor](./Images/md/taylor.jpg)
+
+> [!NOTE] 
+> This is a "not rigorous" Example with N = 3. The reason why we show the process is  only to help you easily understand the algorithm.
+
+![example](./Images/md/example.jpg)
 
 ## 📈 Results
 
