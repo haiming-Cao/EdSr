@@ -50,7 +50,7 @@ Third-Party Package|Version|
 > - Firstly, you will use the left foot to test around for N times since you can't see the way under your feet. During this period, the left foot will be farther and farther away from the right foot (corresponding to the process of the algorithm from N to 2). 
 > - In the last step, the right foot will be moved to the left foot (corresponding to the process of n=1).
 
-![edsr](./Images/md/edsr.jpg)
+
 
 Assume that the initial state is ($X_t$, $X_t'$) and the next state ($X_{t + \Delta t}$, $X_{t + \Delta t}'$). The part of displacement of EdSr can be rewritten as the following form:
 
@@ -70,7 +70,7 @@ $$
 
 where $X_{0}'$ denotes $X_{t + \Delta t}'$. 
 
-> ![TIP]
+> [!TIP]
 > Another intuitive explanation is that each iteration will ''merge'' the last two terms of Taylor expansion, and the operation of ''merge'' here is not really ''merge''. The last ''merge'' operation is the solution of a Newton equation of motion.
 
 ![taylor](./Images/md/taylor.jpg)
@@ -79,6 +79,8 @@ where $X_{0}'$ denotes $X_{t + \Delta t}'$.
 > This is a "not rigorous" Example with N = 3. The reason why we show the process is  only to help you easily understand the algorithm.
 
 ![example](./Images/md/example.jpg)
+
+![edsr](./Images/md/edsr.jpg)
 
 ## 📈 Results
 
