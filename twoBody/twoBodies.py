@@ -89,18 +89,17 @@ class TwoBody(object):
         nextState = np.concatenate([mass, nextx, nextv], axis = -1)
 
         return nextState
+        
     # torch 
     # def potential(self, q: Tensor, mass: Tensor):
     #     Uenergy = torch.tensor(0., requires_grad = True)
-    #     # 遍历每一个粒子，当前粒子编号为 i
     #     for i in range(q.shape[0] - 1): # number of bodies
     #         m_i, m_j = mass[i], mass[i+1:] 
-    #         q_i = q[i:i+1] # * 获取当前粒子
-    #         q_j = q[i+1:]  # * 获取其他的粒子
-    #         displacements = q_i - q_j  # * 坐标相减得到 ij 之间的位移
-    #         r_ij = displacements.square().sum(dim = -1).sqrt() # * 求出当前原子与其他原子之间的距离
+    #         q_i = q[i:i+1] 
+    #         q_j = q[i+1:]  
+    #         displacements = q_i - q_j  
+    #         r_ij = displacements.square().sum(dim = -1).sqrt() 
     #         Uenergy = torch.add(Uenergy, (m_j / r_ij * m_i * G).sum(dim = -1))
-
     #     return -Uenergy
     
     def computeEdSr(self, state, Dt, maxIter, xi: None = None) -> np.ndarray:
@@ -227,7 +226,6 @@ class TwoBody(object):
         init = self.getState(0)
         trajs[0] = init
         ttrajs[0] = init
-        # // print(f"initial state:\n\tgt: {init[:, 1:].reshape(-1)}")
 
         # * Parallel
         with ProcessPoolExecutor(max_workers = 12) as executor:
@@ -261,8 +259,7 @@ class TwoBody(object):
             traderror[i] = tra_deps
             traverror[i] = tra_veps
 
-            # // print(f"after {Dt:5.2f}s: \n\tEdSr result: {nextState[:, 1:].reshape(-1)}\n\tgt: {labelState[:, 1:].reshape(-1)}\n\tabs(diff/labelx) is {deps:.13f}\n\tabs(diff/labelv) is {veps:.13f}")
-
+            
         return trajs, derror, verror, traderror, traverror
 
     # attn the second experiment, get f(x_0 + n*dx) by f(x_0)
@@ -279,13 +276,11 @@ class TwoBody(object):
         init = self.getState(0)
         trajs[0] = init
         ttrajs[0] = init
-        # // print(f"initial state:\n\tgt: {init[:, 1:].reshape(-1)}")
         for i in tqdm(range(trajs.shape[0] - 1)):
 
             Dt = self.times[i + 1] - self.times[i]
 
             nextState = self.computeEdSr(trajs[i], Dt, maxIter)
-            # nextState = self.computeEdSr_parallel(trajs[i], Dt, maxIter)
             tra_nextState = self.compute_classic(ttrajs[i], Dt)
 
             labelState = self.getState(i + 1)
@@ -302,8 +297,6 @@ class TwoBody(object):
             verror[i + 1] = veps
             traderror[i + 1] = tra_deps
             traverror[i + 1] = tra_veps
-
-            # // print(f"after {self.times[i + 1]:5.2f}s: \n\tEdSr result: {nextState[:, 1:].reshape(-1)}\n\tgt: {labelState[:, 1:].reshape(-1)}\n\tabs(diff/labelx) is {deps:.13f}\n\tabs(diff/labelv) is {veps:.13f}")
 
         return trajs, derror, verror, traderror, traverror
         
@@ -350,9 +343,7 @@ if __name__ == "__main__":
     eps_max = max(derror.max(), verror.max())
 
     fig = plt.figure(figsize=[10,3], dpi=200)
-    # plt.xlabel(r'$t = t_0 + \Delta t, \Delta t = interval * step$', fontproperties = fontsize) ; plt.ylabel(r'$Error = RMSE(predict - label)$', fontproperties = fontsize)
     plt.xlabel(r'time(s)', fontproperties = fontsize) ; plt.ylabel(r'error(unitless)', fontproperties = fontsize)
-    # plt.title(f'interval = {interval}s, step = {tStep}, $t \in [{tStart}, {tStart + interval * tStep}]$', loc = 'center', fontproperties = fontsize)
     plt.title(f'MAE compared with RK45', loc = 'center', fontproperties = fontsize)
     plt.axis()
     plt.yscale('log')

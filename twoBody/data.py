@@ -27,17 +27,15 @@ def potential_energy(state) -> np.ndarray:
         r_ij = (displacements**2).sum(axis = -1)**0.5 # * compute distance
         m_i = bodies_i[..., 0]
         m_j = bodies_j[..., 0]
-        # // print(displacements.shape, r_ij.shape, m_i.shape, m_j.shape)
         energy_i = np.sum(m_j / r_ij * m_i * G, axis = -1)
         Uenergy = np.add(Uenergy, energy_i, casting = 'no') 
-    # tot_energy += m_i * m_j / r_ij
+
     return -Uenergy  # define ∞ as 0
 
 def kinetic_energy(state: np.ndarray) -> np.ndarray:
     '''T = sum_i .5*m*v^2'''
     v_scalar_sq = (state[..., 3:5]**2).sum(axis = -1)
     mass        =  state[..., 0]
-    # // print(v_scalar_sq.shape, mass.shape)
     energies = 0.5 * mass * v_scalar_sq
     T = energies.sum(axis = -1)
     return T
@@ -49,7 +47,6 @@ def total_energy(state) -> np.ndarray:
 ##### DYNAMICS #####
 def get_accelerations(state, epsilon = 0):
     # * attributes of partical is (mass, qx, qy, px, py)
-    # // print(state.shape)
     net_accs = [] # [nbodies x 2]
 
     for i in range(state.shape[0]): # number of bodies
@@ -61,16 +58,16 @@ def get_accelerations(state, epsilon = 0):
 
         dis_sq = (displacements_ij**2).sum(axis = -1, keepdims = True) 
         dis = dis_sq**0.5
-        # // print(bodies_j.shape, displacements_ij.shape, dis.shape)
-        other_masses = bodies_j[:, 0:1] # * 其他微粒的质量
+
+        other_masses = bodies_j[:, 0:1] 
         pointwise_accs = other_masses * displacements_ij / (dis_sq * dis + epsilon) * G 
-        # // print(pointwise_accs.shape)
-        net_acc = pointwise_accs.sum(0, keepdims=True)  # 加速度累加
+
+        net_acc = pointwise_accs.sum(0, keepdims=True)  
         net_accs.append(net_acc)
 
     net_accs = np.concatenate(net_accs, axis = 0)
 
-    return net_accs # return a
+    return net_accs
   
 def update(t, state):
     state = state.reshape(-1,5) # [bodies, properties]
@@ -95,14 +92,11 @@ def get_orbit(state, update_fn=update, t_start=0., t_step=100, interval = 0.5, *
 
     t_end = t_start + t_step * interval
     t_eval = np.arange(t_start, t_end + Bintv, Bintv)
-    # t_eval = np.linspace(t_span[0], t_span[1], t_points)
 
 
     path = solve_ivp(fun=update_fn, t_span=[t_start, t_end], y0=state.flatten(),
                      t_eval=t_eval, **kwargs)
     
-    # ATTN 获取到的 path 的维度是(solver, time), 要把维度转换成 (time, solver), 最后将维度转换成 (time, nbodies, attributes)
-    # ATTN 表达式具体含义为 "(nbodies attribute) time -> time nbodies attributes"
     orbit = rearrange(path['y'], "(nb x) t -> t nb x", x = 5)
     orbit = orbit[::skip]
     
@@ -114,7 +108,6 @@ def get_orbit(state, update_fn=update, t_start=0., t_step=100, interval = 0.5, *
 
 
 def rotate(x, theta):
-    # * 旋转变换
     cos, sin = np.cos(theta), np.sin(theta)
     mat = np.array([[cos, -sin],
                     [sin, cos]
@@ -131,30 +124,7 @@ def state_generator(
     velocity: np.ndarray | None = None, # cm/s
     **kwargs
 ):
-    """
-    ## Description: 
-    函数返回一个初始的系统状态，该状态用二维数组来表示，二维数组所代表的信息如下所示：\n
-        initial state information: shape -> (nparticals, info)\n
-        [
-            partical 1 : [mass, qx, qy, px, py],\n
-            partical 2 : [mass, qx, qy, px, py],\n
-            ...\n
-            partical n : [mass, qx, qy, px, py],\n
-        ]\n
 
-    ## Parameters:
-        nbodies (float)                 : 粒子数。\n
-        mass (float | list | np.ndarray): 粒子质量, 单位为 grams. Defaults to 1.0.\n
-        coord (np.ndarray | None)       : 每个粒子对应的笛卡尔坐标，单位为 cm. Defaults to None. \n
-        velocity (np.ndarray | None)    : 每个粒子对应的速度，单位为 cm/s. Defaults to None. \n
-        kwargs :
-            orbit_noise (float): 向速度里面所添加的噪声的标准差 stddev. Defaults to None.\n
-            min_radius (float) : 运动的最小半径，当 `coord` 为 `None` 时，该参数有效. Defaults to 0.5.\n
-            max_radius (float) : 运动的最大半径. 当 `coord` 为 `None` 时，该参数有效. Defaults to 1.5.\n
-
-    ## Returns:
-        np.ndarray: 系统初始状态数组
-    """
     init_state = np.zeros((nbodies, 5))
     # set coordinate
     if coord is None:
@@ -202,11 +172,11 @@ def coords2state(coords, nbodies=2, mass=1):
     return state
 
 if __name__ == "__main__":
-    # * 获取初始状态
+
     state: np.ndarray = state_generator(2, mass = 1.0)
-    # * 通过积分获取轨迹
+
     orbit, orbit_settings = get_orbit(state)
-    # * 获取体系随时间变化的势能
+
     potential = potential_energy(orbit)
-    # * 获取体系随时间变化的动能
+
     kinetic = kinetic_energy(orbit)

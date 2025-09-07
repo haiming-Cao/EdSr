@@ -46,7 +46,7 @@ def data_parser(file_name: str, check_force: bool = False) -> dict:
             'ensemble'   : "nve",
             'thermo'     : 1,
 
-            'maxIter'    : 500,
+            'maxIter'    : 50,
             'ntrajs'     : 30,
             'mode'       : "EdSr",
             'prerun_step': 0,

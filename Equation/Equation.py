@@ -40,7 +40,7 @@ class Equation(object):
                 derivative = 3 * (self.values**2)
             case _:
                 raise TypeError
-        # print(self.values)
+
         self.src = src
         self.derivative = derivative
 
@@ -70,12 +70,6 @@ class Equation(object):
             case _:
                 raise TypeError
 
-        # return 0.01 * y # y = e^-0.1x
-        # return 6 * np.cbrt(y) # x^3
-        # return 2 # y = x^2- x - 5
-        # return y - 3 * y*y + 2*y*y*y # sigmoid
-        # return -y # sinx
-
     def computeEdSr(self, state, Dx, maxIter):
 
         y, dydx = state
@@ -87,12 +81,11 @@ class Equation(object):
 
         for n in range(maxIter, 0, -1):
             xcoeff = 2.0 * n
-            vcoeff = 2.0 * n
-
-            # * compute displacement 
             dy = dydx * Dx + self.secondOrder(yn) * Dxsq / xcoeff 
             yn = y + dy / (xcoeff - 1)
 
+        for n in range(maxIter, 0, -1):
+            vcoeff = 2.0 * n
             ddydx = self.secondOrder(dydxn) * Dx / (vcoeff - 1)
             dydxn = (y + (dydx + ddydx) * Dx / (vcoeff - 2)) if n > 1 else (dydx + ddydx)
     
@@ -125,7 +118,7 @@ class Equation(object):
         ttrajs[0] = self.getState(0)
         
         for i in range(trajs.shape[0] - 1): 
-            # ! 下一时刻减去当前时刻得到时间
+
             Dt = self.values[i + 1] - self.values[i]
 
             # attn EdSr computation
@@ -203,14 +196,14 @@ if __name__ == '__main__':
     tStart   : float = -40.0
     interval : float = 1.0
     tStep    : int   = 60
-    maxIter  : int   = 500
+    maxIter  : int   = 50
 
 
-    # src_label: str = r'$y = e^{0.1x}$'
-    # src_label: str = r'$y = x^2 - 2x - 5$'
-    # src_label: str = r'$y = \sin x$'
-    # src_label: str = r'$y = \frac{1}{1 + e^{-x}}$'
-    src_label: str = r'$y = x^3$'
+    # src_label: str = r'$f(x) = e^{0.1x}$'
+    # src_label: str = r'$f(x) = x^2 - 2x - 5$'
+    # src_label: str = r'$f(x) = \sin x$'
+    # src_label: str = r'$f(x) = \frac{1}{1 + e^{-x}}$'
+    src_label: str = r'$f(x) = x^3$'
 
     equation = Equation(tStart, tStep, interval, src_label)
 

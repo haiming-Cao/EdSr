@@ -370,7 +370,7 @@ else:
     lmpfile        = None
 
     # EdSr params setting
-    maxIter        = 500 # attn EdSr equation number of order
+    maxIter        = 40 # attn EdSr equation number of order
     ntrajs         = 30
     Delta_t        = basis_timestep * ntimestep
     prerun_step    = 0

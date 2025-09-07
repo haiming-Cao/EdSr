@@ -164,9 +164,9 @@ def compute_EdSr(
             # * compute displacement
             xn_grad = gradientFunction(Lammps, xn)
 
-            # dx = v * Dt + massinv * xn_grad * Dtsq / xcoeff
-            # xn = x + dx / (xcoeff - 1)
-            xn = x + v * Dt / (xcoeff - 1) + massinv_Dtsq * (1./(xcoeff - 1) - 1./xcoeff) * xn_grad
+            dx = v * Dt + massinv * xn_grad * Dtsq / xcoeff
+            xn = x + dx / (xcoeff - 1)
+            # xn = x + v * Dt / (xcoeff - 1) + massinv_Dtsq * (1./(xcoeff - 1) - 1./xcoeff) * xn_grad
 
             # * compute velocity
             vn_grad = gradientFunction(Lammps, vn)
@@ -231,9 +231,9 @@ def compute_EdSr_notqdm(
         srcx[:] = xn
         Lammps.run(0, 'pre yes post no')
 
-        # dx = v * Dt + massinv * xn_grad * Dtsq / xcoeff
-        # xn = x + dx / (xcoeff - 1)
-        xn = x + v * Dt / (xcoeff - 1) + massinv_Dtsq * (1./(xcoeff - 1) - 1./xcoeff) * force
+        dx = v * Dt + massinv * xn_grad * Dtsq / xcoeff
+        xn = x + dx / (xcoeff - 1)
+        # xn = x + v * Dt / (xcoeff - 1) + massinv_Dtsq * (1./(xcoeff - 1) - 1./xcoeff) * force
 
         # * compute velocity
         # vn_grad = gradientFunction(Lammps, vn)

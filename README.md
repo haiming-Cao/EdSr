@@ -25,7 +25,7 @@
 
 ## Overview
 
-> The molecular dynamics (MD) simulation technique has been widely used in complex systems, but the time scale is limited due to the small timestep.  Here, we propose a novel method, named Exploratory dynamics Sampling with recursion (EdSr),  which an be used in MD simulation with flexible timestep, inspired by Langevin dynamics,  Stochastic Differential Equation and Taylor expansion formula.  By setting up four groups of experiments including simple function, ideal physical model, all-atom simulation and coarse-grained simulation,  we demonstrate that EdSr can dynamically and flexibly adjust the simulation timestep according to requirements during simulation period, and can work with larger timestep than the widely used velocity-Verlet integrator. Although this method can not perform perfectly at flexible timestep with all simulation systems, we believe that it will be a promising approach in the future.
+> The molecular dynamics (MD) simulation technique has been widely used in complex systems, but the time scale is limited due to the small timestep.  Here, we propose a novel method, named Exploratory dynamics Sampling with recursion (EdSr), which is inspired by ordinary differential equation and Taylor expansion formula, can be used in MD simulation with flexible timestep. By setting up four groups of experiments including simple function, ideal physical model, all-atom simulation and coarse-grained simulation, we demonstrate that EdSr can dynamically and flexibly adjust the simulation timestep according to the requirements during simulation period, and can work with larger timestep than the widely used velocity-Verlet integrator. Although this method can not perform perfectly at flexible timestep with all simulation systems, we believe that it will be a promising approach in the future.
 
 
 ## 🛠️ Requirements
@@ -79,8 +79,6 @@ where $X_{0}'$ denotes $X_{t + \Delta t}'$.
 > This is a "not rigorous" Example with N = 3. The reason why we show the process is  only to help you easily understand the algorithm.
 
 ![example](./Images/md/example.jpg)
-
-![edsr](./Images/md/edsr.jpg)
 
 ## 📈 Results
 
@@ -191,7 +189,7 @@ ntimestep=30
 # benchmark timestep
 basis=1.0 
 # EdSr equation number of order
-maxIter=500
+maxIter=50
 # number of frames
 ntrajs=20000 
 # choose one in ['benchmark', 'control', 'EdSr', 'vv']
@@ -282,7 +280,7 @@ ntimestep=30
 # benchmark timestep
 basis=1.0 
 # EdSr equation number of order
-maxIter=500
+maxIter=50
 # number of frames
 ntrajs=20000 
 # choose one in ['benchmark', 'control', 'EdSr', 'vv']

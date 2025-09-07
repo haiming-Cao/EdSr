@@ -29,11 +29,11 @@ class IdealPendulum(object):
             inv_tStart = tStart + tStep * interval
             inv_interval = -interval
             q, p, dqdt, dpdt, times = get_trajectory(inv_tStart, tStep, inv_interval, m = self.mass, g = self.gravity, l = self.radius)
-            # print(dqdt.shape, dpdt.shape)
+
             q, p, dqdt, dpdt, times = q[::-1], p[::-1], dqdt[:, ::-1], dpdt[:, ::-1], times[::-1]
         else:
             q, p, dqdt, dpdt, times = get_trajectory(tStart, tStep, interval, m = self.mass, g = self.gravity, l = self.radius)
-            # print(dqdt.shape, dpdt.shape)
+
         self.q, self.p, dqdt, dpdt, self.times = q, p, dqdt, dpdt, times
         self.dqdt = np.squeeze(dqdt, 0)
         self.dpdt = np.squeeze(dpdt, 0)
@@ -105,8 +105,7 @@ class IdealPendulum(object):
             verror[i] = np.fabs((nextV - labelv))
             traderror[i] = np.fabs((traX - labelx))
             traverror[i] = np.fabs((traV - labelv))
-            # print(f"after {Dt:5.2f}s, EdSr: [{nextX:+.11f},{nextV:+.11f}], GT: [{labelx:+.11f},{labelv:+.11f}], abs(diff/labelx) is {derror[i]:.11f}, abs(diff/labelv) is {verror[i]:.11f}")
-
+            
         return trajs, derror, verror, traderror, traverror
     
     # attn the second experiment, get f(x_0 + n*dx) by f(x_0)
@@ -139,8 +138,6 @@ class IdealPendulum(object):
             traderror[i + 1] = np.fabs((traX - labelx))
             traverror[i + 1] = np.fabs((traV - labelv))
             
-            # print(f"after {self.times[i + 1] - start:5.2f}s, EdSr: [{nextX:+.11f},{nextV:+.11f}], GT: [{labelx:+.11f},{labelv:+.11f}], abs(diff/labelx) is {derror[i + 1]:.11f}, abs(diff/labelv) is {verror[i + 1]:.11f}")
-
         return trajs, derror, verror, traderror, traverror
 
     def generate(self, maxIter: int):
@@ -157,8 +154,6 @@ class IdealPendulum(object):
 
             trajs[i + 1] = nextX, nextV
             
-            # print(f"after {self.times[i + 1] - start:5.2f}s, EdSr: [{nextX:+.11f},{nextV:+.11f}], GT: [{labelx:+.11f},{labelv:+.11f}], abs(diff/labelx) is {derror[i + 1]:.11f}, abs(diff/labelv) is {verror[i + 1]:.11f}")
-
         return trajs
     
 
@@ -169,7 +164,7 @@ if __name__ == '__main__':
     tStart   : float = 0.0
     interval : float = 0.8
     tStep    : int   = 60
-    maxIter  : int   = 1000
+    maxIter  : int   = 50
 
     mass    : float = 1.0
     radius  : float = 2.0
@@ -218,7 +213,7 @@ if __name__ == '__main__':
     #            ['$-\\frac{\pi}{4}$', '$-\\frac{\pi}{6}$', '$-\\frac{\pi}{9}$', '0', '$\\frac{\pi}{9}$', '$\\frac{\pi}{6}$', '$\\frac{\pi}{4}$'])
     if interval > 0:
         plt.xticks(np.linspace(tStart, tStart + interval * (tStep + 1), 7, dtype = np.int16))
-    else:
+    else:   
         plt.xticks(np.linspace(tStart + interval * (tStep - 1), tStart, 7, dtype = np.int16))
 
     plt.tick_params(axis = 'both', labelsize = 17)

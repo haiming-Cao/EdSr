@@ -144,9 +144,9 @@ def compute_EdSr(
             # * compute displacement
             xn_grad = gradient_func(Lammps, xn)
 
-            # dx = v * Dt + massinv * xn_grad * Dtsq / xcoeff
-            # xn = x + dx / (xcoeff - 1)
-            xn = x + v * Dt / (xcoeff - 1) + massinv_Dtsq * (1./(xcoeff - 1) - 1./xcoeff) * xn_grad
+            dx = v * Dt + massinv * xn_grad * Dtsq / xcoeff
+            xn = x + dx / (xcoeff - 1)
+            # xn = x + v * Dt / (xcoeff - 1) + massinv_Dtsq * (1./(xcoeff - 1) - 1./xcoeff) * xn_grad
 
             # * compute velocity
             vn_grad = gradient_func(Lammps, vn)

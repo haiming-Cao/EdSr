@@ -48,8 +48,8 @@ class IdealSpring(object):
 
         Dtsq = Dt * Dt
 
-        # * compute displacement 
         for n in range(maxIter, 0, -1):
+            # * compute displacement 
             xcoeff = 2.0 * n
             xacc = self.gradient(xn)
             dx = v * Dt + xacc * Dtsq / xcoeff 
@@ -106,7 +106,6 @@ class IdealSpring(object):
             traderror[i + 1] = np.fabs((traX - labelx))
             traverror[i + 1] = np.fabs((traV - labelv))
 
-            # // print(f"after {self.times[i + 1]:5.2f}s, taylor: [{nextX:+.11f},{nextV:+.11f}], GT: [{labelx:+.11f},{labelv:+.11f}], abs(diff/labelx) is {derror[i + 1]:.11f}, abs(diff/labelv) is {verror[i + 1]:.11f}")
         return trajs, derror, verror, traderror, traverror
 
     # attn the second experiment, get f(x_0 + n*dx) by f(x_0)
@@ -140,8 +139,6 @@ class IdealSpring(object):
             traderror[i] = np.fabs((traX - labelx)) # attn error of velocity
             traverror[i] = np.fabs((traV - labelv))
             
-            # // print(f"after {Dt:5.2f}s, taylor: [{nextX:+.11f},{nextV:+.11f}], GT: [{labelx:+.11f},{labelv:+.11f}], abs(diff/labelx) is {derror[i]:.11f}, abs(diff/labelv) is {verror[i]:.11f}")
-
         return trajs, derror, verror, traderror, traverror
     
 
@@ -152,7 +149,7 @@ if __name__ == '__main__':
     tStart   : float = 0.0
     interval : float = 0.1
     tStep    : int   = 100
-    maxIter  : int   = 500
+    maxIter  : int   = 50
 
     spring = IdealSpring(tStart, tStep, interval)
 
